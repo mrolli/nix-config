@@ -362,7 +362,8 @@ sudo nix run nix-darwin -- switch --flake .#id-mrolli-mbp-M4-24
 
 Bootstraps and activates the configuration when `darwin-rebuild` is not yet
 installed. The Determinate Nix installer enables the required `nix-command`
-and `flakes` experimental features. After this succeeds, use
+and `flakes` experimental features and manages the Nix daemon; this
+configuration therefore sets `nix.enable = false`. After this succeeds, use
 `darwin-rebuild switch --flake .#id-mrolli-mbp-M4-24` for routine updates. Do
 not use bare `nix build`: it searches for a default package output, while this
 flake provides a nix-darwin system output at the explicit attribute above.
