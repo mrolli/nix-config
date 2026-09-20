@@ -367,3 +367,20 @@ configuration therefore sets `nix.enable = false`. After this succeeds, use
 `darwin-rebuild switch --flake .#id-mrolli-mbp-M4-24` for routine updates. Do
 not use bare `nix build`: it searches for a default package output, while this
 flake provides a nix-darwin system output at the explicit attribute above.
+
+### Determinate Nix settings
+
+The flake imports Determinate's nix-darwin module. The shared
+`darwin-base` feature enables its integration for every Darwin host and manages
+`/etc/nix/nix.custom.conf`, which is included by Determinate's generated
+`/etc/nix/nix.conf`; do not edit the generated file directly.
+
+It sets:
+
+```nix
+determinateNix.customSettings.auto-optimise-store = true;
+```
+
+This enables store deduplication as new paths are added. Determinate Nixd
+manages garbage collection based on available disk space, so this
+configuration does not define a separate nix-darwin GC schedule.

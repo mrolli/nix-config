@@ -8,6 +8,12 @@
     {
       # Determinate Nix owns the Nix daemon and its configuration.
       nix.enable = false;
+      determinateNix = {
+        enable = true;
+        customSettings = {
+          auto-optimise-store = true;
+        };
+      };
       system.stateVersion = 6;
       system.configurationRevision = inputs.self.rev or inputs.self.dirtyRev or null;
       nixpkgs.hostPlatform = "aarch64-darwin";

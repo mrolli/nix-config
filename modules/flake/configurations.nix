@@ -6,6 +6,7 @@
   flake.darwinConfigurations.id-mrolli-mbp-M4-24 = inputs.nix-darwin.lib.darwinSystem {
     specialArgs = { inherit inputs; };
     modules = [
+      inputs.determinate.darwinModules.default
       inputs.self.modules.darwin.id-mrolli-mbp-M4-24
     ];
   };

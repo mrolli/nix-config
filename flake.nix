@@ -14,6 +14,8 @@
     #nix-darwin.url = "github:nixos/nixpkgs/nixpkgs-26.05-darwin";
     nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
 
+    determinate.url = "github:DeterminateSystems/determinate";
+
     home-manager.url = "github:nix-community/home-manager/master";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
