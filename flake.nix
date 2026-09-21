@@ -7,11 +7,11 @@
   # on the pattern and how to add new features.
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-    #nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-26.05-darwin";
-    #
-    nix-darwin.url = "github:nix-darwin/nix-darwin/master";
-    #nix-darwin.url = "github:nixos/nixpkgs/nixpkgs-26.05-darwin";
+    # nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-26.05-darwin";
+
+    # nix-darwin.url = "github:nix-darwin/nix-darwin/master";
+    nix-darwin.url = "github:nixos/nixpkgs/nixpkgs-26.05-darwin";
     nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
 
     determinate.url = "github:DeterminateSystems/determinate";

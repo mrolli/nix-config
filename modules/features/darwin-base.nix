@@ -24,9 +24,7 @@
       ];
 
       environment.systemPackages = with pkgs; [
-        colima
-        docker
-        nh
+        neovim
       ];
     };
 }
