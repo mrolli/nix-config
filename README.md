@@ -99,6 +99,10 @@ only need user preferences and extra batteries:
 }
 ```
 
+Determinate Nix owns the Nix daemon and daemon settings. Keep `nix.enable =
+false` in the Darwin base aspect and configure additions through
+`determinateNix.customSettings`.
+
 ## Development
 
 Enter the development environment with:
@@ -148,14 +152,3 @@ After bootstrap, use the helper:
 ```bash
 scripts/darwin-switch-summary.sh --host id-mrolli-mbp-M4-24
 ```
-
-The helper defaults to `$HOME/.config/nix-config`. When working from another
-checkout, set:
-
-```bash
-NIX_SYSTEM_FLAKE_DIR="$PWD" scripts/darwin-switch-summary.sh --host id-mrolli-mbp-M4-24
-```
-
-Determinate Nix owns the Nix daemon and daemon settings. Keep `nix.enable =
-false` in the Darwin base aspect and configure additions through
-`determinateNix.customSettings`.
