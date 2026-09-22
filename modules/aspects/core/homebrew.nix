@@ -1,8 +1,8 @@
-{ ... }: {
-  flake.modules.darwin.homebrew = { ... }: {
+{ ... }:
+{
+  den.aspects.homebrew.darwin = {
     homebrew = {
       enable = true;
-      # onActivation.cleanup = "uninstall";
       brews = [
         "id-unibe-ch/tap/bildschirmUniversum"
       ];

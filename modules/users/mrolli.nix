@@ -1,19 +1,10 @@
-{ ... }: {
-  flake.modules.darwin.mrolli = { pkgs, ... }:
-  let
-    username = "mrolli";
-  in {
-    system.primaryUser = username;
-
-    users.users.mrolli = {
-      name = username;
-      home = "/Users/mrolli";
-      shell = pkgs.zsh;
-    };
-  };
-
-  flake.modules.homeManager.mrolli-darwin = { ... }: {
-    home.username = username;
-    home.homeDirectory = "/Users/mrolli";
+{ den, ... }:
+{
+  den.aspects.mrolli = {
+    includes = [
+      den.batteries.host-aspects
+      den.batteries.primary-user
+      (den.batteries.user-shell "zsh")
+    ];
   };
 }

@@ -1,30 +1,28 @@
-{ inputs, ... }: {
-  flake.modules.darwin.darwin-base =
+{ inputs, ... }:
+{
+  den.aspects.darwin-base.darwin =
     {
-      pkgs,
       config,
       ...
     }:
     {
+      imports = [
+        inputs.determinate.darwinModules.default
+      ];
+
       # Determinate Nix owns the Nix daemon and its configuration.
       nix.enable = false;
       determinateNix = {
         enable = true;
-        customSettings = {
-          auto-optimise-store = true;
-        };
+        customSettings.auto-optimise-store = true;
       };
+
       system.stateVersion = 6;
       system.configurationRevision = inputs.self.rev or inputs.self.dirtyRev or null;
-      nixpkgs.hostPlatform = "aarch64-darwin";
 
       environment.systemPath = [
         "${config.homebrew.prefix}/bin"
         "${config.homebrew.prefix}/sbin"
-      ];
-
-      environment.systemPackages = with pkgs; [
-        neovim
       ];
     };
 }

@@ -1,34 +1,38 @@
 {
-  description = "Flake-based Multi-platform Nix Configuration";
+  description = "Den-based multi-platform Nix configuration";
 
-  # This flake follows the "dendritic pattern": every `.nix` file under
-  # `modules/` (except entry points like this one) is a flake-parts module,
-  # auto-discovered and imported via `import-tree`. See README.md for details
-  # on the pattern and how to add new features.
+  # Every `.nix` file under `modules/` is a flake-parts module, auto-discovered
+  # by `import-tree`. Those modules publish Den aspects, hosts, and defaults;
+  # Den resolves them into nix-darwin / NixOS / Home Manager outputs.
 
   inputs = {
     # nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-26.05-darwin";
 
-    # nix-darwin.url = "github:nix-darwin/nix-darwin/master";
-    nix-darwin.url = "github:nixos/nixpkgs/nixpkgs-26.05-darwin";
-    nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
+    # den: the aspect/host framework that assembles the flake outputs from the
+    # `den.aspects` / `den.hosts` / `den.default` published under `modules/`.
+    den.url = "github:denful/den";
+
+    darwin.url = "github:nix-darwin/nix-darwin/nix-darwin-26.05";
+    darwin.inputs.nixpkgs.follows = "nixpkgs";
 
     determinate.url = "github:DeterminateSystems/determinate";
 
-    home-manager.url = "github:nix-community/home-manager/master";
+    home-manager.url = "github:nix-community/home-manager/release-26.05";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
     flake-parts.url = "github:hercules-ci/flake-parts";
     import-tree.url = "github:vic/import-tree";
   };
 
-  outputs = inputs:
+  outputs =
+    inputs:
     inputs.flake-parts.lib.mkFlake { inherit inputs; } {
       imports = [
-        # Provides the `flake.modules.<class>.<name>` option used throughout
-        # `modules/` to publish nixos/darwin/homeManager feature modules.
-        inputs.flake-parts.flakeModules.modules
+        # den's flake-parts module: defines the `den.*` options, resolves the
+        # aspects/hosts/defaults published under `modules/`, and generates the
+        # nixosConfigurations / darwinConfigurations / homeConfigurations outputs.
+        inputs.den.flakeModule
         (inputs.import-tree ./modules)
       ];
     };
