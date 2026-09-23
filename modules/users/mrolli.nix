@@ -6,8 +6,9 @@
       den.batteries.primary-user
       # (den.batteries.user-shell "zsh")
 
-      den.aspects.editorconfig
+      den.aspects.asciinema
       den.aspects.bat
+      den.aspects.editorconfig
     ];
   };
 }
