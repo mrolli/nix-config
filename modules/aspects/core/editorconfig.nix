@@ -1,6 +1,6 @@
-# Creates starship.toml; see
-# https://nix-community.github.io/home-manager/options/home-manager/programs/starship.html
-# https://gist.github.com/s-a-c/0e44dc7766922308924812d4c019b109#file-starship-nix/
+# Creates ~/editorconfig; see
+# https://nix-community.github.io/home-manager/options/home-manager/editorconfig.html
+# https://editorconfig.org
 { lib, ... }:
 {
   den.aspects.editorconfig.homeManager = {
