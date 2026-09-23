@@ -7,6 +7,7 @@
       # (den.batteries.user-shell "zsh")
 
       den.aspects.editorconfig
+      den.aspects.bat
     ];
   };
 }
