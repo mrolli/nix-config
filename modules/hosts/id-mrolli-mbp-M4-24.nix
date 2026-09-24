@@ -7,8 +7,8 @@ in
     includes = [
       den.aspects.base
       den.aspects.darwin-base
+      den.aspects.devenv
       den.aspects.homebrew
-      den.aspects.starship
     ];
 
     darwin = {
