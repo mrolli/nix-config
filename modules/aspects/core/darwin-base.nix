@@ -11,10 +11,18 @@
       ];
 
       # Determinate Nix owns the Nix daemon and its configuration.
+      # https://docs.determinate.systems/guides/nix-darwin/
       nix.enable = false;
       determinateNix = {
         enable = true;
-        customSettings.auto-optimise-store = true;
+        customSettings = {
+          auto-optimise-store = true;
+          trusted-users = [
+            "root"
+            "mrolli"
+            "@wheel"
+          ];
+        };
       };
 
       system.stateVersion = 6;
