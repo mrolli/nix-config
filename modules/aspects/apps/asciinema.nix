@@ -1,4 +1,4 @@
-# Create asciinema/config
+# Install and configure asciinema using Home Manager
 # https://nix-community.github.io/home-manager/options/home-manager/programs/asciinema.html
 # https://docs.asciinema.org/manual/cli/configuration/v3/
 { lib, ... }:
