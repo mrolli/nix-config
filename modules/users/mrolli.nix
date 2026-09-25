@@ -11,6 +11,7 @@
       den.aspects.editorconfig
       den.aspects.glow
       den.aspects.starship
+      den.aspects.zsh
     ];
   };
 }
