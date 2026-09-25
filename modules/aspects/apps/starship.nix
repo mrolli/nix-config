@@ -73,7 +73,7 @@
           ahead = "⇡$count";
           behind = "⇣$count";
           diverged = "⇡$ahead_count⇣$behind_count";
-          stashed = "\\\\$\${count}";
+          stashed = "\\$${count}";
           staged = "++$count";
           conflicted = "[](red)$count ";
         };
