@@ -1,12 +1,16 @@
 # Install and configure devenv using Home Manager
 # https://nix-community.github.io/home-manager/options/home-manager/programs/devenv.html
 # https://devenv.sh
-{ ... }:
+{ inputs, ... }:
 let
   systemModule =
     { pkgs, ... }:
     {
-      environment.systemPackages = [ pkgs.devenv ];
+      # devenv moves quickly; take it from nixpkgs-unstable rather than the
+      # pinned `nixpkgs` release used for the rest of the system.
+      environment.systemPackages = [
+        inputs.nixpkgs-unstable.legacyPackages.${pkgs.stdenv.hostPlatform.system}.devenv
+      ];
     };
 
   homeModule =

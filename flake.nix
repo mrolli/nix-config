@@ -6,8 +6,12 @@
   # Den resolves them into nix-darwin / NixOS / Home Manager outputs.
 
   inputs = {
-    # nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-26.05-darwin";
+
+    # Tracks nixpkgs-unstable independently (no `follows`), so individual
+    # aspects can opt a specific package into a newer release than the
+    # pinned `nixpkgs` input.
+    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 
     # den: the aspect/host framework that assembles the flake outputs from the
     # `den.aspects` / `den.hosts` / `den.default` published under `modules/`.
