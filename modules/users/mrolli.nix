@@ -9,6 +9,7 @@
       den.aspects.asciinema
       den.aspects.bat
       den.aspects.editorconfig
+      den.aspects.glow
       den.aspects.starship
     ];
   };
