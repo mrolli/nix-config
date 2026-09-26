@@ -1,13 +1,6 @@
 # Function definitions
 # shellcheck disable=SC2148
 
-# Open manpages in terminalapp
-# shellcheck disable=SC2068
-manx() { open x-man-page://"$*"; }
-# Open mangpages as PDF in preview app
-# shellcheck disable=SC2068
-manp() { man -t $@ | open -f -a "Preview"; }
-
 # Prepend a string to a filename
 prepend() {
   if [ $# -ne 2 ]; then
