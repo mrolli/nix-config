@@ -2,9 +2,7 @@
 set -euo pipefail
 
 host="id-mrolli-mbp-M4-24"
-
-script_dir="$(cd "$(dirname "$0")" && pwd -P)" || exit
-flake_dir="${NIX_SYSTEM_FLAKE_DIR:-$(dirname "$script_dir")}"
+flake_dir="${NIX_SYSTEM_FLAKE_DIR:-$HOME/.nix-config}"
 
 usage() {
   cat <<'EOF'

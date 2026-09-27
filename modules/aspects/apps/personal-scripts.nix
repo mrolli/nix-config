@@ -8,6 +8,19 @@
       lib,
       ...
     }:
+    let
+      darwinSwitchSummary = pkgs.writeShellApplication {
+        name = "darwin-switch-summary";
+        runtimeInputs = with pkgs; [
+          nix
+          jq
+          coreutils
+          gnugrep
+          gnused
+        ];
+        text = builtins.readFile ../../../scripts/darwin-switch-summary.sh;
+      };
+    in
     lib.mkMerge [
       {
         home.packages = with pkgs; [
@@ -19,6 +32,8 @@
       }
 
       (lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
+        home.packages = [ darwinSwitchSummary ];
+
         home.file = {
           "${config.xdg.binHome}/music" = {
             source = ../files/scripts/darwin/music;
