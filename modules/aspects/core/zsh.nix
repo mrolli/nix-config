@@ -204,7 +204,6 @@ let
             # macOS-only helper functions, ported from the
             # mrolli/zsh-macos-goodies zinit plugin.
             source ${../files/zsh/macos-goodies.zsh}
-            compdef _music music
           '')
         ];
       };

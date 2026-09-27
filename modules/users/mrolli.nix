@@ -13,6 +13,7 @@
       den.aspects.environment
       den.aspects.fzf
       den.aspects.glow
+      den.aspects.music
       den.aspects.starship
       den.aspects.zsh
     ];

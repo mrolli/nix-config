@@ -1,0 +1,155 @@
+#!/usr/bin/env zsh
+
+autoload -Uz colors
+colors
+
+music_usage() {
+  cat >&2 <<'EOF'
+Usage: music CMD [ARGS]
+Controls the macOS Music app.
+
+Commands:
+  launch|play|pause|stop|rewind|resume|quit
+  mute|unmute
+  next|previous
+  shuffle [on|off|toggle]
+  volume [0-100|up|down]
+  playing|status
+  playlist [playlist name]
+  -h|--help
+EOF
+}
+
+music_main() {
+  local app_name=Music
+  local opt=${1-}
+  local playlist=${2-}
+  local state
+  local volume
+  local new_volume
+  local current_track
+  local current_artist
+  local shuffle_state
+
+  (( $# > 0 )) && shift
+
+  case "$opt" in
+    launch | play | pause | stop | rewind | resume | quit)
+      ;;
+    mute)
+      opt="set mute to true"
+      ;;
+    unmute)
+      opt="set mute to false"
+      ;;
+    next | previous)
+      opt="$opt track"
+      ;;
+    volume | vol)
+      volume=$(osascript -e "tell application \"$app_name\" to get sound volume") || return
+      if (( $# == 0 )); then
+        printf 'Current volume is %s.\n' "$volume"
+        return 0
+      fi
+      case "$1" in
+        up) new_volume=$(( volume + 10 < 100 ? volume + 10 : 100 )) ;;
+        down) new_volume=$(( volume - 10 > 0 ? volume - 10 : 0 )) ;;
+        <->)
+          if (( $1 >= 0 && $1 <= 100 )); then
+            new_volume=$1
+          else
+            printf 'Volume must be between 0 and 100.\n' >&2
+            return 1
+          fi
+          ;;
+        *)
+          printf "'%s' is not valid. Expected <0-100>, up or down.\n" "$1" >&2
+          return 1
+          ;;
+      esac
+      opt="set sound volume to $new_volume"
+      ;;
+    playlist)
+      if [[ -z "$playlist" ]]; then
+        playlist=$(osascript -e 'tell application "Music" to get name of every playlist' |
+          sed 's/, /\n/g' | sort) || return
+        if command -v fzf >/dev/null 2>&1; then
+          playlist=$(printf '%s\n' "$playlist" |
+            fzf --prompt="Choose a playlist: " --height=20) || return 0
+        else
+          printf 'Available playlists:\n%s\n\nUsage: music playlist [playlist name]\n' "$playlist" >&2
+          return 1
+        fi
+      fi
+
+      osascript 2>/dev/null <<EOF
+tell application "$app_name"
+  set new_playlist to "$playlist" as string
+  play playlist new_playlist
+end tell
+EOF
+      if (( $? == 0 )); then
+        opt=play
+      else
+        opt=stop
+      fi
+      ;;
+    playing | status)
+      state=$(osascript -e "tell application \"$app_name\" to player state as string") || return
+      if [[ "$state" == playing ]]; then
+        current_track=$(osascript -e "tell application \"$app_name\" to name of current track as string") || return
+        current_artist=$(osascript -e "tell application \"$app_name\" to artist of current track as string") || return
+        printf 'Listening to %s%s%s by %s%s%s\n' \
+          "$fg[yellow]" "$current_track" "$reset_color" \
+          "$fg[yellow]" "$current_artist" "$reset_color"
+      else
+        printf '%s is %s\n' "$app_name" "$state"
+      fi
+      return 0
+      ;;
+    shuf | shuff | shuffle)
+      state=${1-}
+      if [[ -n "$state" && "$state" != (on|off|toggle) ]]; then
+        printf 'Usage: music shuffle [on|off|toggle]. Invalid option: %s\n' "$state" >&2
+        return 1
+      fi
+      case "$state" in
+        on | off)
+          [[ "$state" == on ]] && state=true || state=false
+          osascript >/dev/null 2>&1 <<EOF
+tell application "Music"
+  set shuffle enabled to $state
+end tell
+EOF
+          ;;
+        toggle)
+          osascript >/dev/null 2>&1 <<'EOF'
+tell application "Music"
+  if shuffle enabled is true then
+    set shuffle enabled to false
+  else
+    set shuffle enabled to true
+  end if
+end tell
+EOF
+          ;;
+      esac
+      shuffle_state=$(osascript -e "tell application \"$app_name\" to get shuffle enabled") || return
+      [[ "$shuffle_state" == true ]] && shuffle_state=on || shuffle_state=off
+      printf 'Shuffle is now %s\n' "$shuffle_state"
+      return 0
+      ;;
+    "" | help | -h | --help)
+      music_usage
+      return 0
+      ;;
+    *)
+      printf 'Unknown option: %s\n' "$opt" >&2
+      return 1
+      ;;
+  esac
+
+  osascript -e "tell application \"$app_name\" to $opt"
+}
+
+music_main "$@"

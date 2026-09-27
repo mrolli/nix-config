@@ -1,0 +1,70 @@
+#compdef music
+
+_music() {
+  local -a commands
+
+  _arguments -C \
+    "(-h --help)"{-h,--help}"[Get help for music]" \
+    "1: :->commands" \
+    "*::arg:->args"
+
+  case $state in
+    commands)
+      commands=(
+        "launch:Launch the Music app"
+        "play:Play Music"
+        "pause:Pause Music"
+        "stop:Stop Music"
+        "rewind:Rewind Music"
+        "resume:Resume Music"
+        "quit:Quit Music"
+        "mute:Mute the Music app"
+        "unmute:Unmute the Music app"
+        "next:Skip to the next song"
+        "previous:Skip to the previous song"
+        "volume:Get or set the volume"
+        "vol:Get or set the volume"
+        "playlist:Play a specific playlist"
+        "playing:Show what song is currently playing"
+        "status:Show what song is currently playing"
+        "shuffle:Set shuffle mode"
+        "shuf:Set shuffle mode"
+        "shuff:Set shuffle mode"
+        "help:Get help for music"
+      )
+      _describe "command" commands
+      ;;
+  esac
+
+  case "$words[1]" in
+    shuf | shuff | shuffle)
+      _music_shuffle
+      ;;
+    vol | volume)
+      _music_volume
+      ;;
+    playlist)
+      _music_playlist
+      ;;
+  esac
+}
+
+_music_shuffle() {
+  local -a commands=( "on:Turn on shuffle" "off:Turn off shuffle" "toggle:Toggle shuffle" )
+  _describe "shuffle mode" commands
+}
+
+_music_playlist() {
+  local -a commands
+  commands=(${(s[, ])$(osascript -e 'tell application "Music" to get name of every playlist')})
+  _describe "playlist" commands
+}
+
+_music_volume() {
+  local -a commands=(
+    "up:Increase volume by 10"
+    "down:Decrease volume by 10"
+    "0-100:Set volume to a percentage"
+  )
+  _describe "volume" commands
+}

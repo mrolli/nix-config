@@ -10,6 +10,8 @@
       # third-party tools that read the env vars (rather than assuming the
       # default ~/.config-style paths) see them, matching the old zshenv.
       xdg.enable = true;
+      # add XDG binary path to $PATH
+      xdg.localBinInPath = true;
 
       home.sessionVariables = {
         LANG = "en_US.UTF-8";
