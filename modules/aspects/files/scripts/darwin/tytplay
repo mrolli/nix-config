@@ -1,0 +1,92 @@
+#!/bin/bash
+
+# Terminal YouTube player for my YT Deep House playlist
+playlist_url="https://www.youtube.com/playlist?list=PLGe3z15K4zd9vc1UITjuGSCMuv0WvwEAt"
+data_dir=${XDG_DATA_HOME:-$HOME}/tytplay
+playlist_file=$data_dir/playlist.txt
+
+if ! command -v yt-dlp &>/dev/null; then
+  echo "yt-dlp not found, please install yt-dlp."
+  exit 0
+fi
+
+if ! command -v fzf &>/dev/null; then
+  echo "fzf not found, please install fzf."
+  exit 0
+fi
+
+if ! command -v mpv &>/dev/null; then
+  echo "mpv not found, please install mpv."
+  exit 0
+fi
+
+if [ "$1" == "--help" ] || [ "$1" == "-h" ]; then
+  echo "Usage: tytplay [--video] [--purge]"
+  echo ""
+  echo "Options:"
+  echo "  --video     Play videos with video profile"
+  echo "  --purge     Purge and refresh the playlist file"
+  echo "  --help, -h  Show this help message"
+  exit 0
+fi
+
+profile=no-video
+if [ "$1" == "--video" ]; then
+  profile=secondary-screen
+fi
+
+# Create data directory if it doesn't exist
+if [ ! -d "$data_dir" ]; then
+  echo "Create data directory at $data_dir."
+  mkdir "$data_dir"
+fi
+
+# Purge playlist file if requested
+if [[ "$*" =~ --purge ]]; then
+  echo "Purging playlist file..."
+  rm -f "$playlist_file"
+fi
+
+# Create playlist if necessary
+if [ ! -f "$playlist_file" ]; then
+  echo -n "Creating playlist file... "
+
+  yt-dlp --skip-download \
+    --cookies-from-browser Safari \
+    --no-warning \
+    --print title \
+    --print "#EXTIMG:%(thumbnail)s" \
+    --print webpage_url \
+    "$playlist_url" |
+    sed 's/#EXTIMG://' \
+      >"$playlist_file"
+
+  echo "done."
+fi
+
+tmpimg=${XDG_CACHE_HOME:-/tmp}/tytplay_preview_img
+selection=$(awk '
+  NR % 3 == 1 { title = $0 }
+  NR % 3 == 2 { img = $0 }
+  NR % 3 == 0 { url = $0; print title "\t" img "\t" url }
+' "$playlist_file" |
+  fzf --delimiter='\t' \
+    --with-nth=1 \
+    --preview="
+        if command -v viu &> /dev/null; then
+          curl -sL \$(echo {2}) -o $tmpimg
+          viu -h 20 $tmpimg
+        else
+          echo \"viu not found, please install viu to see image preview.\"
+          exit 0
+        fi
+      " \
+    --preview-window up:border-none)
+rm -f "$tmpimg"
+
+if [ -n "$selection" ]; then
+  title=$(echo "$selection" | cut -f1)
+  url=$(echo "$selection" | cut -f3)
+  echo "$title"
+  mpv --volume=60 --profile=$profile "$url"
+fi

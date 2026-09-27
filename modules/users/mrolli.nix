@@ -14,7 +14,9 @@
       den.aspects.fzf
       den.aspects.glow
       den.aspects.music
+      den.aspects.mpv
       den.aspects.starship
+      den.aspects.tytplay
       den.aspects.zsh
     ];
   };
