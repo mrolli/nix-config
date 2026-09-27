@@ -25,8 +25,6 @@
       {
         home.packages = with pkgs; [
           curl
-          mpv
-          yt-dlp
           viu
         ];
       }
