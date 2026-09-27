@@ -1,30 +1,11 @@
-# Install and configure mpv for supported platforms.
+# Install and configure yt-dlp
+# https://nix-community.github.io/home-manager/options/home-manager/programs/yt-dlp.html
+# https://github.com/yt-dlp/yt-dlp#configuration
 { ... }:
 {
-  den.aspects.mpv.homeManager = {
-    programs.mpv = {
+  den.aspects.yt-dlp.homeManager = {
+    programs.yt-dlp = {
       enable = true;
-
-      config = {
-        autofit-larger = "100%x100%";
-        autofit-smaller = "1000x1000";
-        hwdec = true;
-      };
-
-      profiles = {
-        no-video = {
-          no-video = true;
-        };
-        secondary-screen = {
-          screen = 1;
-        };
-      };
-
-      bindings = {
-        "Alt+3" = "set window-scale 3.0";
-        "Alt+4" = "set window-scale 4.0";
-        "Alt+5" = "set window-scale 5.0";
-      };
     };
   };
 }
