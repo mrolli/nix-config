@@ -197,7 +197,9 @@ let
             fi
 
             source ${../files/zsh/functions.zsh}
-            eval "$(devenv hook zsh)"
+            if command -v devenv &>/dev/null 2>&1; then
+              eval "$(devenv hook zsh)"
+            fi
           ''
 
           (lib.optionalString pkgs.stdenv.hostPlatform.isDarwin ''
