@@ -72,6 +72,10 @@
           source = ../files/scripts/common/termtester;
           executable = true;
         };
+        home.file."${config.xdg.binHome}/init-ansible-project" = {
+          source = ../files/scripts/common/init-ansible-project;
+          executable = true;
+        };
       }
 
       (lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {

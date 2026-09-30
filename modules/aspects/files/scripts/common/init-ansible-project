@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+
+program_name=${0##*/}
+
+if [ "$#" -ne 1 ]; then
+  >&2 echo "Usage: $program_name PROJECT_PATH"
+  exit 1
+fi
+
+project_path=$1
+
+if [ -e "$project_path" ]; then
+  >&2 echo "$program_name: path already exists: $project_path"
+  exit 2
+fi
+
+if ! mkdir -p "$project_path"/{playbooks,group_vars,host_vars,roles}; then
+  >&2 echo "$program_name: failed to create project directories"
+  exit 3
+fi
+
+if ! cat >"$project_path/ansible.cfg" <<'EOF'
+[defaults]
+inventory = ./inventory
+collections_path = ./collections
+roles_path = ./roles
+
+gathering = smart
+fact_caching = jsonfile
+fact_caching_connection = ~/.ansible/fact_cache
+fact_caching_timeout = 86400
+
+force_handlers = true
+nocows = true
+
+[ssh_connection]
+pipelining = true
+EOF
+then
+  >&2 echo "$program_name: failed to write ansible.cfg"
+  exit 3
+fi
+
+if ! cat >"$project_path/.envrc" <<'EOF'
+export ANSIBLE_CONFIG="$PWD/ansible.cfg"
+export ANSIBLE_FORCE_COLOR=1
+export PY_COLORS=1
+EOF
+then
+  >&2 echo "$program_name: failed to write .envrc"
+  exit 3
+fi
+
+if ! cat >"$project_path/inventory" <<'EOF'
+[all:vars]
+# ansible_user=ansible
+# ansible_user=vagrant
+# ansible_ssh_private_key_file=~/.vagrant.d/insecure_private_key
+ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
+EOF
+then
+  >&2 echo "$program_name: failed to write inventory"
+  exit 3
+fi
+
+printf '%s: created Ansible project in %s\n' "$program_name" "$project_path"
