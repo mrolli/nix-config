@@ -20,6 +20,9 @@
         ];
         text = builtins.readFile ../../../scripts/darwin-switch-summary.sh;
       };
+      pdfTex = pkgs.texlive.combine {
+        inherit (pkgs.texlive) scheme-small collection-fontsrecommended;
+      };
     in
     lib.mkMerge [
       {
@@ -29,6 +32,8 @@
             curl
             jq
             _1password-cli
+            pandoc
+            pdfTex
             viu
           ]
           ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
@@ -45,6 +50,10 @@
         };
         home.file."${config.xdg.binHome}/lego_set_search" = {
           source = ../files/scripts/common/lego_set_search.sh;
+          executable = true;
+        };
+        home.file."${config.xdg.binHome}/2pdf" = {
+          source = ../files/scripts/common/2pdf;
           executable = true;
         };
       }
