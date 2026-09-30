@@ -97,6 +97,10 @@
           source = ../files/scripts/common/playtube;
           executable = true;
         };
+        home.file."${config.xdg.binHome}/rename-files" = {
+          source = ../files/scripts/common/rename-files;
+          executable = true;
+        };
       }
 
       (lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {

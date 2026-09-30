@@ -1,0 +1,192 @@
+#!/usr/bin/env zsh
+
+setopt extended_glob
+
+print_usage() {
+  cat >&2 <<EOF
+Usage: ${0:t} [OPTIONS] [FILTER]
+
+Preview normalized names for matching files in the current directory.
+FILTER is a zsh glob and defaults to '*'.
+
+Options:
+  -a, --apply       Apply the planned renames
+  -l, --lowercase   Convert normalized filenames to lowercase
+  -u, --title-case  Capitalize words in normalized filenames
+  -h, --help        Show this help
+EOF
+}
+
+normalize_name() {
+  local name=$1
+
+  name=${name// - /.}
+  name=${name//, /.}
+  name=${name//,/.}
+  name=${name// ##/.}
+  name=${name%.}
+  name=${name//ä/ae}
+  name=${name//ö/oe}
+  name=${name//ü/ue}
+  name=${name//Ä/Ae}
+  name=${name//Ö/Oe}
+  name=${name//Ü/Ue}
+  name=${name//&/and}
+  name=${name//„/ä}
+  name=${name//則/ä}
+  name=${name//派/ö}
+  name=${name//�/ü}
+  name=${name//🦄/}
+  name=${name//🎄/}
+  while [[ $name == *..* ]]; do
+    name=${name//\.\./.}
+  done
+
+  if $lowercase; then
+    name=${name:l}
+  fi
+  if $title_case; then
+    name=${(C)name}
+  fi
+
+  print -r -- "$name"
+}
+
+apply=false
+lowercase=false
+title_case=false
+
+while (( $# > 0 )); do
+  case $1 in
+    -a | --apply)
+      apply=true
+      shift
+      ;;
+    -l | --lowercase)
+      lowercase=true
+      shift
+      ;;
+    -u | --title-case)
+      title_case=true
+      shift
+      ;;
+    -h | --help)
+      print_usage
+      exit 0
+      ;;
+    --)
+      shift
+      break
+      ;;
+    -*)
+      print -u2 -- "Unknown option: $1"
+      print_usage
+      exit 1
+      ;;
+    *)
+      break
+      ;;
+  esac
+done
+
+if (( $# > 1 )); then
+  print_usage
+  exit 1
+fi
+
+filter=${1:-'*'}
+files=( ${~filter}(N) )
+sources=()
+targets=()
+typeset -A source_set target_set
+
+for source in "${files[@]}"; do
+  if [[ ! -f $source || $source == ranking.txt ]]; then
+    continue
+  fi
+
+  if [[ $source == *.* && $source != .* ]]; then
+    stem=${source:r}
+    extension=.${source:e:l}
+  else
+    stem=$source
+    extension=
+  fi
+
+  normalized=$(normalize_name "$stem")
+  target=${normalized}${extension}
+
+  if [[ $source == $target ]]; then
+    continue
+  fi
+  if [[ -z $target ]]; then
+    print -u2 -- "Normalization produced an empty filename for: $source"
+    exit 2
+  fi
+  if [[ -n ${target_set[$target]-} ]]; then
+    print -u2 -- "Multiple files would be renamed to: $target"
+    exit 2
+  fi
+
+  sources+=("$source")
+  targets+=("$target")
+  source_set[$source]=1
+  target_set[$target]=1
+done
+
+if (( ${#sources} == 0 )); then
+  print "Nothing to do."
+  exit 0
+fi
+
+for target in "${targets[@]}"; do
+  if [[ -e $target && -z ${source_set[$target]-} ]]; then
+    print -u2 -- "Destination already exists: $target"
+    exit 2
+  fi
+done
+
+for index in {1..${#sources}}; do
+  printf 'mv %q %q\n' "${sources[$index]}" "${targets[$index]}"
+done
+
+if ! $apply; then
+  print
+  print "Dry run only. Use --apply to perform these renames."
+  exit 0
+fi
+
+temporary=()
+for index in {1..${#sources}}; do
+  temporary_name=".rename-files.$$.${index}"
+  if [[ -e $temporary_name ]]; then
+    print -u2 -- "Temporary path already exists: $temporary_name"
+    exit 2
+  fi
+  temporary+=("$temporary_name")
+done
+
+moved=0
+for index in {1..${#sources}}; do
+  if ! mv -- "${sources[$index]}" "${temporary[$index]}"; then
+    for (( rollback = moved; rollback >= 1; rollback-- )); do
+      mv -- "${temporary[$rollback]}" "${sources[$rollback]}" || true
+    done
+    print -u2 -- "Rename failed; previously moved files were restored."
+    exit 3
+  fi
+  moved=$index
+done
+
+for index in {1..${#temporary}}; do
+  if ! mv -- "${temporary[$index]}" "${targets[$index]}"; then
+    for (( rollback = index - 1; rollback >= 1; rollback-- )); do
+      mv -- "${targets[$rollback]}" "${sources[$rollback]}" || true
+    done
+    for (( rollback = index; rollback <= ${#temporary}; rollback++ )); do
+      mv -- "${temporary[$rollback]}" "${sources[$rollback]}" || true
+    done
+    print -u2 -- "Rename failed; the original names were restored where possible."
+    exit 3
+  fi
+done
