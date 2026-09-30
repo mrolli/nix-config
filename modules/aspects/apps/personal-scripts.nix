@@ -23,10 +23,30 @@
     in
     lib.mkMerge [
       {
-        home.packages = with pkgs; [
-          curl
-          viu
-        ];
+        home.packages =
+          with pkgs;
+          [
+            curl
+            jq
+            _1password-cli
+            viu
+          ]
+          ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
+            pkgs.util-linux
+          ];
+
+        home.file."${config.xdg.binHome}/lego_print_storage_labels" = {
+          source = ../files/scripts/common/lego_print_storage_labels.sh;
+          executable = true;
+        };
+        home.file."${config.xdg.binHome}/lego_set_infos" = {
+          source = ../files/scripts/common/lego_set_infos.sh;
+          executable = true;
+        };
+        home.file."${config.xdg.binHome}/lego_set_search" = {
+          source = ../files/scripts/common/lego_set_search.sh;
+          executable = true;
+        };
       }
 
       (lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {

@@ -13,7 +13,6 @@
       casks = [
         "windows-app"
         "1password"
-        "1password-cli"
       ];
     };
   };
