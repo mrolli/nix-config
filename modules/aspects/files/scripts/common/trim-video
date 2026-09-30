@@ -1,0 +1,116 @@
+#!/usr/bin/env bash
+
+print_usage() {
+  cat >&2 <<EOF
+Usage: ${0##*/} [--copy] [--overwrite] INPUT [SECONDS]
+
+Trim SECONDS from the end of INPUT (default: 1.0). The default output is
+INPUT_trim_SECONDS with the original extension.
+EOF
+}
+
+copy_streams=false
+overwrite=false
+
+while [ "$#" -gt 0 ]; do
+  case $1 in
+    --copy)
+      copy_streams=true
+      shift
+      ;;
+    --overwrite)
+      overwrite=true
+      shift
+      ;;
+    -h | --help)
+      print_usage
+      exit 0
+      ;;
+    --)
+      shift
+      break
+      ;;
+    -*)
+      >&2 echo "Unknown option: $1"
+      print_usage
+      exit 1
+      ;;
+    *)
+      break
+      ;;
+  esac
+done
+
+if [ "$#" -lt 1 ] || [ "$#" -gt 2 ]; then
+  print_usage
+  exit 1
+fi
+
+input=$1
+trim_seconds=${2:-1.0}
+
+if [ ! -f "$input" ]; then
+  >&2 echo "Input file not found: $input"
+  exit 1
+fi
+
+if ! awk -v value="$trim_seconds" 'BEGIN { exit !(value ~ /^[0-9]+([.][0-9]+)?$/ && value > 0) }'; then
+  >&2 echo "SECONDS must be a positive number."
+  exit 1
+fi
+
+duration=$(ffprobe \
+  -v error \
+  -show_entries format=duration \
+  -of default=noprint_wrappers=1:nokey=1 \
+  "$input")
+
+if ! output_duration=$(awk -v duration="$duration" -v trim="$trim_seconds" \
+  'BEGIN { result = duration - trim; if (result <= 0) exit 1; printf "%.6f", result }'); then
+  >&2 echo "Trim duration must be shorter than the input."
+  exit 2
+fi
+
+directory=${input%/*}
+if [ "$directory" = "$input" ]; then
+  directory=.
+fi
+filename=${input##*/}
+if [[ $filename == *.* && $filename != .* ]]; then
+  stem=${filename%.*}
+  extension=.${filename##*.}
+else
+  stem=$filename
+  extension=
+fi
+output="$directory/${stem}_trim_${trim_seconds}${extension}"
+
+if [ -e "$output" ] && ! $overwrite; then
+  >&2 echo "Output already exists: $output"
+  exit 2
+fi
+
+overwrite_option=-n
+if $overwrite; then
+  overwrite_option=-y
+fi
+
+encoding_options=(-map 0)
+if $copy_streams; then
+  encoding_options+=(-c copy)
+else
+  encoding_options+=(
+    -c:v libx265
+    -crf 24
+    -preset fast
+    -c:a copy
+    -c:s copy
+  )
+fi
+
+ffmpeg "$overwrite_option" \
+  -hide_banner \
+  -i "$input" \
+  "${encoding_options[@]}" \
+  -t "$output_duration" \
+  "$output"

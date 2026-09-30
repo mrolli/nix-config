@@ -33,6 +33,7 @@
             jq
             _1password-cli
             coreutils
+            ffmpeg-headless
             gawk
             ncurses
             openssl
@@ -78,6 +79,18 @@
         };
         home.file."${config.xdg.binHome}/renumber-files" = {
           source = ../files/scripts/common/renumber-files;
+          executable = true;
+        };
+        home.file."${config.xdg.binHome}/media-concatenate" = {
+          source = ../files/scripts/common/media-concatenate;
+          executable = true;
+        };
+        home.file."${config.xdg.binHome}/trim-video" = {
+          source = ../files/scripts/common/trim-video;
+          executable = true;
+        };
+        home.file."${config.xdg.binHome}/video-convert-to-hevc" = {
+          source = ../files/scripts/common/video-convert-to-hevc;
           executable = true;
         };
       }

@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+
+print_usage() {
+  >&2 echo "Usage: ${0##*/} [--overwrite] OUTPUT INPUT INPUT [INPUT ...]"
+}
+
+overwrite=false
+if [ "${1:-}" = "--overwrite" ]; then
+  overwrite=true
+  shift
+fi
+
+if [ "$#" -lt 3 ]; then
+  print_usage
+  exit 1
+fi
+
+output=$1
+shift
+
+if [ -e "$output" ] && ! $overwrite; then
+  >&2 echo "Output already exists: $output"
+  exit 2
+fi
+
+for input in "$@"; do
+  if [ ! -f "$input" ]; then
+    >&2 echo "Input file not found: $input"
+    exit 1
+  fi
+  if [ "$(realpath "$input")" = "$(realpath -m "$output")" ]; then
+    >&2 echo "Output must not be one of the input files: $output"
+    exit 1
+  fi
+done
+
+manifest=$(mktemp "${TMPDIR:-/tmp}/media-concatenate.XXXXXX")
+trap 'rm -f "$manifest"' EXIT
+
+for input in "$@"; do
+  absolute_input=$(realpath "$input")
+  escaped_input=${absolute_input//\'/\'\\\'\'}
+  printf "file '%s'\n" "$escaped_input" >>"$manifest"
+done
+
+echo "Concatenating in this order:"
+printf '  %s\n' "$@"
+
+overwrite_option=-n
+if $overwrite; then
+  overwrite_option=-y
+fi
+
+ffmpeg "$overwrite_option" \
+  -hide_banner \
+  -f concat \
+  -safe 0 \
+  -i "$manifest" \
+  -c copy \
+  "$output"

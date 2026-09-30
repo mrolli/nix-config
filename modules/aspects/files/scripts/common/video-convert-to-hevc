@@ -1,0 +1,139 @@
+#!/usr/bin/env bash
+
+print_usage() {
+  cat >&2 <<EOF
+Usage: ${0##*/} [OPTIONS] INPUT [OUTPUT]
+
+Convert video streams to HEVC while copying audio, subtitle, and data streams.
+OUTPUT defaults to INPUT.hevc with the original extension.
+
+Options:
+  -c, --crf NUMBER       HEVC quality value (default: 28)
+  -p, --preset PRESET    x265 preset (default: faster)
+      --overwrite        Replace an existing output
+  -h, --help             Show this help
+EOF
+}
+
+crf=28
+preset=faster
+overwrite=false
+
+while [ "$#" -gt 0 ]; do
+  case $1 in
+    -c | --crf)
+      [ "$#" -ge 2 ] || {
+        >&2 echo "$1 requires a value."
+        exit 1
+      }
+      crf=$2
+      shift 2
+      ;;
+    --crf=*)
+      crf=${1#*=}
+      shift
+      ;;
+    -p | --preset)
+      [ "$#" -ge 2 ] || {
+        >&2 echo "$1 requires a value."
+        exit 1
+      }
+      preset=$2
+      shift 2
+      ;;
+    --preset=*)
+      preset=${1#*=}
+      shift
+      ;;
+    --overwrite)
+      overwrite=true
+      shift
+      ;;
+    -h | --help)
+      print_usage
+      exit 0
+      ;;
+    --)
+      shift
+      break
+      ;;
+    -*)
+      >&2 echo "Unknown option: $1"
+      print_usage
+      exit 1
+      ;;
+    *)
+      break
+      ;;
+  esac
+done
+
+if [ "$#" -lt 1 ] || [ "$#" -gt 2 ]; then
+  print_usage
+  exit 1
+fi
+
+input=$1
+if [ ! -f "$input" ]; then
+  >&2 echo "Input file not found: $input"
+  exit 1
+fi
+
+if ! [[ $crf =~ ^[0-9]+$ ]] || ((crf < 0 || crf > 51)); then
+  >&2 echo "CRF must be an integer between 0 and 51."
+  exit 1
+fi
+
+if [ "$#" -eq 2 ]; then
+  output=$2
+else
+  directory=${input%/*}
+  if [ "$directory" = "$input" ]; then
+    directory=.
+  fi
+  filename=${input##*/}
+  if [[ $filename == *.* && $filename != .* ]]; then
+    output="$directory/${filename%.*}.hevc.${filename##*.}"
+  else
+    output="$directory/${filename}.hevc"
+  fi
+fi
+
+if [ "$input" = "$output" ]; then
+  >&2 echo "Input and output must be different files."
+  exit 1
+fi
+
+if [ -e "$output" ] && ! $overwrite; then
+  >&2 echo "Output already exists: $output"
+  exit 2
+fi
+
+overwrite_option=-n
+if $overwrite; then
+  overwrite_option=-y
+fi
+
+tag_options=()
+case ${output##*.} in
+  mp4 | MP4 | mov | MOV | m4v | M4V)
+    tag_options=(-tag:v hvc1)
+    ;;
+esac
+
+echo "Converting $input to $output using libx265 (CRF $crf, preset $preset)."
+
+ffmpeg "$overwrite_option" \
+  -hide_banner \
+  -analyzeduration 5000M \
+  -probesize 5000M \
+  -i "$input" \
+  -map 0 \
+  -c:v libx265 \
+  -crf "$crf" \
+  -preset "$preset" \
+  -c:a copy \
+  -c:s copy \
+  -c:d copy \
+  "${tag_options[@]}" \
+  "$output"
