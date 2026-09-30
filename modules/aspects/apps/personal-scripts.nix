@@ -32,6 +32,8 @@
             curl
             jq
             _1password-cli
+            coreutils
+            openssl
             pandoc
             pdfTex
             viu
@@ -54,6 +56,10 @@
         };
         home.file."${config.xdg.binHome}/2pdf" = {
           source = ../files/scripts/common/2pdf;
+          executable = true;
+        };
+        home.file."${config.xdg.binHome}/check_certificate_expiry" = {
+          source = ../files/scripts/common/check_certificate_expiry.sh;
           executable = true;
         };
       }
