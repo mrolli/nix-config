@@ -119,7 +119,11 @@
       }
 
       (lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
-        home.packages = [ darwinSwitchSummary ];
+        home.packages = with pkgs; [
+          darwinSwitchSummary
+          openssh
+          rsync
+        ];
 
         home.file = {
           "${config.xdg.binHome}/music" = {
@@ -128,6 +132,14 @@
           };
           "${config.xdg.binHome}/tytplay" = {
             source = ../files/scripts/darwin/tytplay;
+            executable = true;
+          };
+          "${config.xdg.binHome}/backup-job-on-gimli" = {
+            source = ../files/scripts/darwin/backup-job-on-gimli;
+            executable = true;
+          };
+          "${config.xdg.binHome}/sync-to-gimli" = {
+            source = ../files/scripts/darwin/sync-to-gimli;
             executable = true;
           };
         };

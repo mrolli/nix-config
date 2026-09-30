@@ -1,0 +1,94 @@
+#!/usr/bin/env bash
+
+print_usage() {
+  cat >&2 <<EOF
+Usage: ${0##*/} [--apply] [--verbose]
+
+Mirror selected folders from /Volumes/Data to /Volumes/Backup/Backup.
+By default, show an rsync dry run; use --apply to perform the backup.
+EOF
+}
+
+apply=false
+verbose=false
+
+while [ "$#" -gt 0 ]; do
+  case $1 in
+    --apply)
+      apply=true
+      shift
+      ;;
+    -v | --verbose)
+      verbose=true
+      shift
+      ;;
+    -h | --help)
+      print_usage
+      exit 0
+      ;;
+    *)
+      >&2 echo "Unknown option: $1"
+      print_usage
+      exit 1
+      ;;
+  esac
+done
+
+if ! command -v rsync >/dev/null 2>&1; then
+  >&2 echo "Required command not found: rsync"
+  exit 1
+fi
+
+data_path=/Volumes/Data
+backup_path=/Volumes/Backup/Backup
+backup_items=(
+  Archiv
+  Comics
+  Dokumente
+  Ebooks
+  Music
+)
+
+if [ ! -d "$data_path" ]; then
+  >&2 echo "Data volume is not mounted: $data_path"
+  exit 2
+fi
+
+if [ ! -d "$backup_path" ]; then
+  >&2 echo "Backup volume is not mounted: $backup_path"
+  exit 2
+fi
+
+for item in "${backup_items[@]}"; do
+  if [ ! -d "$data_path/$item" ]; then
+    >&2 echo "Backup source is missing: $data_path/$item"
+    exit 2
+  fi
+done
+
+rsync_options=(
+  --archive
+  --delete
+  --itemize-changes
+)
+
+if ! $apply; then
+  rsync_options+=(--dry-run)
+fi
+
+if $verbose; then
+  rsync_options+=(--progress --stats)
+fi
+
+for item in "${backup_items[@]}"; do
+  printf '\n----- Mirroring %s to %s\n' "$data_path/$item/" "$backup_path/$item/"
+  if ! rsync "${rsync_options[@]}" "$data_path/$item/" "$backup_path/$item/"; then
+    >&2 echo "Backup failed while syncing: $item"
+    exit 3
+  fi
+done
+
+if ! $apply; then
+  echo
+  echo "Dry run only. Use --apply to perform this backup."
+fi

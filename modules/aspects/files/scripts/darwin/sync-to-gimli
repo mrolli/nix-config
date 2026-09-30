@@ -1,0 +1,105 @@
+#!/usr/bin/env bash
+
+gimli_host=gimli.local
+remote_data_path=/Volumes/Data
+sounddisk_path=/Volumes/Sounddisk
+documents_path=$HOME/Documents
+
+print_usage() {
+  cat >&2 <<EOF
+Usage: ${0##*/} [--apply] [--verbose]
+
+Mirror Documents and available Sounddisk folders to Gimli.
+By default, show an rsync dry run; use --apply to perform the sync.
+EOF
+}
+
+apply=false
+verbose=false
+
+while [ "$#" -gt 0 ]; do
+  case $1 in
+    --apply)
+      apply=true
+      shift
+      ;;
+    -v | --verbose)
+      verbose=true
+      shift
+      ;;
+    -h | --help)
+      print_usage
+      exit 0
+      ;;
+    *)
+      >&2 echo "Unknown option: $1"
+      print_usage
+      exit 1
+      ;;
+  esac
+done
+
+for command in rsync ssh; do
+  if ! command -v "$command" >/dev/null 2>&1; then
+    >&2 echo "Required command not found: $command"
+    exit 1
+  fi
+done
+
+if [ ! -d "$documents_path" ]; then
+  >&2 echo "Documents source is missing: $documents_path"
+  exit 2
+fi
+
+# Quote the configured path locally before passing the remote shell command.
+# shellcheck disable=SC2029
+if ! ssh "$gimli_host" \
+  "command -v rsync >/dev/null 2>&1 && test -d $(printf '%q' "$remote_data_path")"; then
+  >&2 echo "Gimli is unavailable, rsync is not on its PATH, or the destination is missing."
+  exit 2
+fi
+
+rsync_options=(
+  --archive
+  --checksum
+  --delete
+  --itemize-changes
+)
+
+if ! $apply; then
+  rsync_options+=(--dry-run)
+fi
+
+if $verbose; then
+  rsync_options+=(--progress --stats)
+fi
+
+sync_directory() {
+  local source=$1
+  local destination=$2
+
+  printf '\n----- Mirroring %s to %s:%s\n' \
+    "$source/" "$gimli_host" "$remote_data_path/$destination/"
+  if ! rsync \
+    "${rsync_options[@]}" \
+    "$source/" \
+    "$gimli_host:$remote_data_path/$destination/"; then
+    >&2 echo "Sync failed for: $source"
+    exit 3
+  fi
+}
+
+sync_directory "$documents_path" Dokumente
+
+for directory in MusicStuff ProGamesPkgs; do
+  if [ -d "$sounddisk_path/$directory" ]; then
+    sync_directory "$sounddisk_path/$directory" "$directory"
+  else
+    echo "Skipping missing optional source: $sounddisk_path/$directory"
+  fi
+done
+
+if ! $apply; then
+  echo
+  echo "Dry run only. Use --apply to perform this sync."
+fi
