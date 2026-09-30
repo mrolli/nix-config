@@ -1,0 +1,7 @@
+#!/bin/sh
+
+i=0
+while [ "$i" -le 255 ]; do
+  printf '\033[38;5;%smcolour%s\033[0m\n' "$i" "$i"
+  i=$((i + 1))
+done

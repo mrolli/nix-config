@@ -33,6 +33,8 @@
             jq
             _1password-cli
             coreutils
+            gawk
+            ncurses
             openssl
             pandoc
             pdfTex
@@ -60,6 +62,14 @@
         };
         home.file."${config.xdg.binHome}/check_certificate_expiry" = {
           source = ../files/scripts/common/check_certificate_expiry.sh;
+          executable = true;
+        };
+        home.file."${config.xdg.binHome}/colors-tmux" = {
+          source = ../files/scripts/common/colors-tmux;
+          executable = true;
+        };
+        home.file."${config.xdg.binHome}/termtester" = {
+          source = ../files/scripts/common/termtester;
           executable = true;
         };
       }
