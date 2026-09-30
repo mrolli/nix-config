@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+if [ "$#" -ne 0 ]; then
+  >&2 echo "Usage: ${0##*/}"
+  exit 1
+fi
+
+if ! command -v git >/dev/null 2>&1; then
+  >&2 echo "Required command not found: git"
+  exit 1
+fi
+
+if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  >&2 echo "Not inside a Git work tree."
+  exit 2
+fi
+
+name="Michael Rolli"
+email="michael.rolli@unibe.ch"
+signing_key="EA75816558876EAC"
+
+if ! git config --local user.name "$name"; then
+  >&2 echo "Failed to set the local Git user name."
+  exit 3
+fi
+
+if ! git config --local user.email "$email"; then
+  >&2 echo "Failed to set the local Git email address."
+  exit 3
+fi
+
+if ! git config --local user.signingkey "$signing_key"; then
+  >&2 echo "Failed to set the local Git signing key."
+  exit 3
+fi
+
+printf 'Local Git identity:\n'
+printf '  user.name: %s\n' "$(git config --local --get user.name)"
+printf '  user.email: %s\n' "$(git config --local --get user.email)"
+printf '  user.signingkey: %s\n' "$(git config --local --get user.signingkey)"

@@ -35,6 +35,9 @@
             coreutils
             ffmpeg-headless
             gawk
+            git
+            git-filter-repo
+            gh
             ncurses
             openssl
             pandoc
@@ -99,6 +102,18 @@
         };
         home.file."${config.xdg.binHome}/rename-files" = {
           source = ../files/scripts/common/rename-files;
+          executable = true;
+        };
+        home.file."${config.xdg.binHome}/git-use-unibe-identity" = {
+          source = ../files/scripts/common/git-use-unibe-identity;
+          executable = true;
+        };
+        home.file."${config.xdg.binHome}/git-rename-github-default-branch" = {
+          source = ../files/scripts/common/git-rename-github-default-branch;
+          executable = true;
+        };
+        home.file."${config.xdg.binHome}/git-forget-path" = {
+          source = ../files/scripts/common/git-forget-path;
           executable = true;
         };
       }

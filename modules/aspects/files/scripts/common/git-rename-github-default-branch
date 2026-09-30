@@ -1,0 +1,148 @@
+#!/usr/bin/env bash
+
+print_usage() {
+  cat >&2 <<EOF
+Usage: ${0##*/} [--apply] SOURCE TARGET [REMOTE]
+
+Create TARGET from REMOTE/SOURCE, push it, set it as the GitHub default
+branch, and retarget open pull requests. SOURCE is retained locally and
+remotely. The default REMOTE is origin.
+EOF
+}
+
+apply=false
+if [ "${1:-}" = "--apply" ]; then
+  apply=true
+  shift
+fi
+
+if [ "$#" -lt 2 ] || [ "$#" -gt 3 ]; then
+  print_usage
+  exit 1
+fi
+
+source_branch=$1
+target_branch=$2
+remote=${3:-origin}
+
+for command in git gh; do
+  if ! command -v "$command" >/dev/null 2>&1; then
+    >&2 echo "Required command not found: $command"
+    exit 1
+  fi
+done
+
+if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  >&2 echo "Not inside a Git work tree."
+  exit 2
+fi
+
+if [ "$source_branch" = "$target_branch" ]; then
+  >&2 echo "SOURCE and TARGET must be different branches."
+  exit 1
+fi
+
+for branch in "$source_branch" "$target_branch"; do
+  if ! git check-ref-format --branch "$branch" >/dev/null 2>&1; then
+    >&2 echo "Invalid branch name: $branch"
+    exit 1
+  fi
+done
+
+if ! git remote get-url "$remote" >/dev/null 2>&1; then
+  >&2 echo "Git remote not found: $remote"
+  exit 2
+fi
+
+if ! repository=$(gh repo view --json nameWithOwner --jq .nameWithOwner); then
+  >&2 echo "Could not resolve the current GitHub repository."
+  exit 2
+fi
+
+if ! git ls-remote --exit-code --heads "$remote" "$source_branch" >/dev/null 2>&1; then
+  >&2 echo "Remote source branch not found: $remote/$source_branch"
+  exit 2
+fi
+
+if git show-ref --verify --quiet "refs/heads/$target_branch"; then
+  >&2 echo "Local target branch already exists: $target_branch"
+  exit 2
+fi
+
+if git ls-remote --exit-code --heads "$remote" "$target_branch" >/dev/null 2>&1; then
+  >&2 echo "Remote target branch already exists: $remote/$target_branch"
+  exit 2
+fi
+
+if ! pull_requests=$(gh pr list \
+  --base "$source_branch" \
+  --state open \
+  --limit 1000 \
+  --json number \
+  --jq '.[].number'); then
+  >&2 echo "Could not list open pull requests."
+  exit 2
+fi
+
+printf 'Repository: %s\n' "$repository"
+printf 'Create:     %s from %s/%s\n' "$target_branch" "$remote" "$source_branch"
+printf 'Push:       %s/%s\n' "$remote" "$target_branch"
+printf 'Default:    %s\n' "$target_branch"
+printf 'Retain:     local and remote %s branches\n' "$source_branch"
+
+if [ -n "$pull_requests" ]; then
+  printf 'Retarget open pull requests:'
+  while IFS= read -r number; do
+    printf ' #%s' "$number"
+  done <<<"$pull_requests"
+  printf '\n'
+else
+  echo "Retarget open pull requests: none"
+fi
+
+if ! $apply; then
+  echo
+  echo "Dry run only. Use --apply to perform this migration."
+  exit 0
+fi
+
+if ! git fetch "$remote" "$source_branch"; then
+  >&2 echo "Failed to fetch $remote/$source_branch."
+  exit 3
+fi
+
+if ! git branch --no-track "$target_branch" "$remote/$source_branch"; then
+  >&2 echo "Failed to create local branch: $target_branch"
+  exit 3
+fi
+
+if ! git push --set-upstream "$remote" "$target_branch"; then
+  git branch -D "$target_branch" >/dev/null 2>&1 || true
+  >&2 echo "Failed to push $remote/$target_branch; removed the new local branch."
+  exit 3
+fi
+
+if ! gh repo edit "$repository" --default-branch "$target_branch"; then
+  >&2 echo "The new branch was pushed, but updating GitHub's default branch failed."
+  exit 4
+fi
+
+while IFS= read -r number; do
+  [ -n "$number" ] || continue
+  if ! gh api \
+    --method PATCH \
+    "repos/$repository/pulls/$number" \
+    -f base="$target_branch" \
+    >/dev/null; then
+    >&2 echo "Default branch updated, but retargeting pull request #$number failed."
+    exit 4
+  fi
+done <<<"$pull_requests"
+
+if ! git remote set-head "$remote" "$target_branch"; then
+  >&2 echo "GitHub was updated, but setting the local remote HEAD failed."
+  exit 4
+fi
+
+printf 'Migration complete. The source branch %s was retained locally and remotely.\n' \
+  "$source_branch"

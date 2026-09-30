@@ -1,0 +1,114 @@
+#!/usr/bin/env bash
+
+print_usage() {
+  cat >&2 <<EOF
+Usage: ${0##*/} [--apply] PATH [PATH ...]
+
+Remove one or more repository-relative paths from all rewritten Git history.
+Renames are not followed, so provide every historical path when necessary.
+
+Run this in the root of a fresh clone. By default, the command only previews
+affected commits; use --apply to invoke git-filter-repo.
+EOF
+}
+
+apply=false
+if [ "${1:-}" = "--apply" ]; then
+  apply=true
+  shift
+fi
+
+if [ "$#" -eq 0 ]; then
+  print_usage
+  exit 1
+fi
+
+for command in git git-filter-repo; do
+  if ! command -v "$command" >/dev/null 2>&1; then
+    >&2 echo "Required command not found: $command"
+    exit 1
+  fi
+done
+
+if ! repository_root=$(git rev-parse --show-toplevel 2>/dev/null); then
+  >&2 echo "Not inside a Git work tree."
+  exit 2
+fi
+
+if [ "$(pwd -P)" != "$(cd "$repository_root" && pwd -P)" ]; then
+  >&2 echo "Run this command from the repository root: $repository_root"
+  exit 2
+fi
+
+paths=()
+for path in "$@"; do
+  while [[ $path == ./* ]]; do
+    path=${path#./}
+  done
+
+  if [ -z "$path" ] || [[ $path = /* ]] || [[ /$path/ = */../* ]]; then
+    >&2 echo "PATH must be a safe repository-relative path: $path"
+    exit 1
+  fi
+
+  paths+=("$path")
+done
+
+affected=false
+for path in "${paths[@]}"; do
+  printf 'Commits containing %q:\n' "$path"
+  if commits=$(git log \
+    --all \
+    --format='%h %ad %s' \
+    --date=short \
+    -- "$path") && [ -n "$commits" ]; then
+    printf '%s\n' "$commits"
+    affected=true
+  else
+    echo "  none"
+  fi
+  echo
+done
+
+if ! $affected; then
+  >&2 echo "None of the requested paths were found in repository history."
+  exit 2
+fi
+
+if ! $apply; then
+  echo "Dry run only. Use --apply in a fresh clone to rewrite history."
+  exit 0
+fi
+
+remote_name=
+remote_url=
+if git remote get-url origin >/dev/null 2>&1; then
+  remote_name=origin
+  remote_url=$(git remote get-url origin)
+fi
+
+filter_arguments=(--invert-paths)
+for path in "${paths[@]}"; do
+  filter_arguments+=(--path "$path")
+done
+
+if ! git filter-repo "${filter_arguments[@]}"; then
+  >&2 echo "git-filter-repo failed. No safety checks were bypassed."
+  exit 3
+fi
+
+for path in "${paths[@]}"; do
+  if git log --all --format=%H -- "$path" | grep -q .; then
+    >&2 echo "History rewrite completed, but the path is still present: $path"
+    exit 4
+  fi
+done
+
+echo
+echo "History rewrite complete. Review all rewritten branches and tags carefully."
+if [ -n "$remote_url" ]; then
+  printf 'git-filter-repo removed %s as a safety measure. Restore it after review:\n' \
+    "$remote_name"
+  printf '  git remote add %q %q\n' "$remote_name" "$remote_url"
+fi
+echo "Coordinate with collaborators before force-pushing rewritten refs."
