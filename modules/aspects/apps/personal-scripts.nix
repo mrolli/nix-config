@@ -93,6 +93,10 @@
           source = ../files/scripts/common/video-convert-to-hevc;
           executable = true;
         };
+        home.file."${config.xdg.binHome}/playtube" = {
+          source = ../files/scripts/common/playtube;
+          executable = true;
+        };
       }
 
       (lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {

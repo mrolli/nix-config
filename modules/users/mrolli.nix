@@ -16,6 +16,7 @@
       den.aspects.mpv
       den.aspects.personal-scripts
       den.aspects.starship
+      den.aspects.yt-dlp
       den.aspects.zsh
     ];
   };

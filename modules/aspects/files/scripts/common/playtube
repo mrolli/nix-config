@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+if [ "$#" -eq 0 ]; then
+  >&2 echo "Usage: ${0##*/} SEARCH_TERMS..."
+  exit 1
+fi
+
+for command in mpv yt-dlp; do
+  if ! command -v "$command" >/dev/null 2>&1; then
+    >&2 echo "Required command not found: $command"
+    exit 1
+  fi
+done
+
+search=$*
+printf 'Playing shuffled audio for: %s\n' "$search"
+
+exec mpv \
+  --shuffle \
+  --no-video \
+  --ytdl-format=bestaudio \
+  "ytdl://ytsearch10:$search"
