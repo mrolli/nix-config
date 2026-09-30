@@ -76,6 +76,10 @@
           source = ../files/scripts/common/init-ansible-project;
           executable = true;
         };
+        home.file."${config.xdg.binHome}/renumber-files" = {
+          source = ../files/scripts/common/renumber-files;
+          executable = true;
+        };
       }
 
       (lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {

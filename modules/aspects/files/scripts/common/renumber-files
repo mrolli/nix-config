@@ -1,0 +1,233 @@
+#!/usr/bin/env bash
+
+print_usage() {
+  cat >&2 <<EOF
+Usage: ${0##*/} [OPTIONS]
+
+Renumber matching files in natural order. By default, only print the planned
+renames; use --apply to perform them.
+
+Options:
+  -a, --apply             Apply the planned renames
+  -d, --digits NUMBER     Zero-pad numbers to this width (default: 2)
+  -f, --filter PATTERNS   Space-separated glob patterns (default: *)
+  -p, --prefix PREFIX     Prefix for generated names
+  -s, --start NUMBER      First number (default: 1)
+  -x, --ignore-extension  Do not preserve filename extensions
+  -h, --help              Show this help
+EOF
+}
+
+apply=false
+digits=2
+filter='*'
+prefix=
+start=1
+preserve_extension=true
+
+contains() {
+  local needle=$1
+  shift
+
+  local item
+  for item in "$@"; do
+    if [ "$item" = "$needle" ]; then
+      return 0
+    fi
+  done
+  return 1
+}
+
+while [ "$#" -gt 0 ]; do
+  case $1 in
+    -a | --apply)
+      apply=true
+      shift
+      ;;
+    -d | --digits)
+      [ "$#" -ge 2 ] || {
+        >&2 echo "$1 requires a value."
+        exit 1
+      }
+      digits=$2
+      shift 2
+      ;;
+    -f | --filter)
+      [ "$#" -ge 2 ] || {
+        >&2 echo "$1 requires a value."
+        exit 1
+      }
+      filter=$2
+      shift 2
+      ;;
+    -p | --prefix)
+      [ "$#" -ge 2 ] || {
+        >&2 echo "$1 requires a value."
+        exit 1
+      }
+      prefix=$2
+      shift 2
+      ;;
+    -s | --start)
+      [ "$#" -ge 2 ] || {
+        >&2 echo "$1 requires a value."
+        exit 1
+      }
+      start=$2
+      shift 2
+      ;;
+    -x | --ignore-extension)
+      preserve_extension=false
+      shift
+      ;;
+    -h | --help)
+      print_usage
+      exit 0
+      ;;
+    *)
+      >&2 echo "Unknown option: $1"
+      print_usage
+      exit 1
+      ;;
+  esac
+done
+
+if ! [[ $digits =~ ^[1-9][0-9]*$ ]]; then
+  >&2 echo "The digit width must be a positive integer."
+  exit 1
+fi
+
+if ! [[ $start =~ ^[0-9]+$ ]]; then
+  >&2 echo "The starting number must be a non-negative integer."
+  exit 1
+fi
+
+read -r -a patterns <<<"$filter"
+if [ "${#patterns[@]}" -eq 0 ]; then
+  >&2 echo "The filter must contain at least one glob pattern."
+  exit 1
+fi
+
+shopt -s nullglob
+files=()
+for pattern in "${patterns[@]}"; do
+  # Intentionally expand each user-supplied glob after splitting the pattern list.
+  # shellcheck disable=SC2206
+  matches=($pattern)
+  for file in "${matches[@]}"; do
+    if [ -d "$file" ] || contains "$file" "${files[@]}"; then
+      continue
+    fi
+    files+=("$file")
+  done
+done
+
+if [ "${#files[@]}" -eq 0 ]; then
+  echo "Nothing to do."
+  exit 0
+fi
+
+sorted_files=()
+while IFS= read -r -d '' file; do
+  sorted_files+=("$file")
+done < <(printf '%s\0' "${files[@]}" | sort -zV)
+files=("${sorted_files[@]}")
+
+sources=()
+targets=()
+number=$start
+
+for file in "${files[@]}"; do
+  directory=${file%/*}
+  if [ "$directory" = "$file" ]; then
+    directory=.
+  fi
+  basename=${file##*/}
+  extension=
+
+  if $preserve_extension && [[ $basename == *.* && $basename != .* ]]; then
+    extension=.${basename##*.}
+  fi
+
+  printf -v padded_number '%0*d' "$digits" "$number"
+  target_name="${prefix}${padded_number}${extension}"
+  if [ "$directory" = . ]; then
+    target=$target_name
+  else
+    target=$directory/$target_name
+  fi
+  number=$((number + 1))
+
+  if [ "$file" = "$target" ]; then
+    continue
+  fi
+
+  if contains "$target" "${targets[@]}"; then
+    >&2 printf 'Multiple files would be renamed to %q.\n' "$target"
+    exit 2
+  fi
+
+  sources+=("$file")
+  targets+=("$target")
+done
+
+if [ "${#sources[@]}" -eq 0 ]; then
+  echo "Nothing to do."
+  exit 0
+fi
+
+for target in "${targets[@]}"; do
+  if [ -e "$target" ] && ! contains "$target" "${sources[@]}"; then
+    >&2 printf 'Destination already exists: %q\n' "$target"
+    exit 2
+  fi
+done
+
+for index in "${!sources[@]}"; do
+  printf 'mv %q %q\n' "${sources[$index]}" "${targets[$index]}"
+done
+
+if ! $apply; then
+  echo
+  echo "Dry run only. Use --apply to perform these renames."
+  exit 0
+fi
+
+temporary=()
+for index in "${!sources[@]}"; do
+  directory=${sources[$index]%/*}
+  if [ "$directory" = "${sources[$index]}" ]; then
+    directory=.
+  fi
+  temporary_name="$directory/.renumber-files.$$.$index"
+  if [ -e "$temporary_name" ]; then
+    >&2 printf 'Temporary path already exists: %q\n' "$temporary_name"
+    exit 2
+  fi
+  temporary+=("$temporary_name")
+done
+
+moved_to_temporary=0
+for index in "${!sources[@]}"; do
+  if ! mv -- "${sources[$index]}" "${temporary[$index]}"; then
+    for ((rollback = moved_to_temporary - 1; rollback >= 0; rollback--)); do
+      mv -- "${temporary[$rollback]}" "${sources[$rollback]}" || true
+    done
+    >&2 echo "Rename failed; previously moved sources were restored."
+    exit 3
+  fi
+  moved_to_temporary=$((moved_to_temporary + 1))
+done
+
+for index in "${!temporary[@]}"; do
+  if ! mv -- "${temporary[$index]}" "${targets[$index]}"; then
+    for ((rollback = index - 1; rollback >= 0; rollback--)); do
+      mv -- "${targets[$rollback]}" "${sources[$rollback]}" || true
+    done
+    for ((rollback = index; rollback < ${#temporary[@]}; rollback++)); do
+      mv -- "${temporary[$rollback]}" "${sources[$rollback]}" || true
+    done
+    >&2 echo "Rename failed; the original names were restored where possible."
+    exit 3
+  fi
+done
