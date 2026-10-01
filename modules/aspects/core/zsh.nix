@@ -110,6 +110,10 @@ let
 
           # Some GitHub copilot aliases if gh is available
           ghe = "GH_HOST=github.unibe.ch gh";
+
+          # Workaround hack for gh in devenv that causes escape sequence to bleed
+          # into the terminal
+          gh = "TERM=screen command gh";
         }
         // (
           if pkgs.stdenv.hostPlatform.isLinux then
