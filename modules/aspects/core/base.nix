@@ -14,7 +14,7 @@ let
         gnupg
         jq
         neovim
-        yq
+        yq-go
       ];
     };
 in
