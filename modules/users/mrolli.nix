@@ -3,8 +3,9 @@
   den.aspects.mrolli = {
     includes = [
       den.batteries.host-aspects
+      den.batteries.define-user
       den.batteries.primary-user
-      # (den.batteries.user-shell "zsh")
+      (den.batteries.user-shell "zsh")
 
       den.aspects.asciinema
       den.aspects.bat
