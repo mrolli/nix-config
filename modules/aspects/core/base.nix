@@ -7,8 +7,9 @@ let
 
       environment.systemPackages = with pkgs; [
         azure-cli
-        bat
+        cargo
         eza
+        git
         github-cli
         github-copilot-cli
         gnupg

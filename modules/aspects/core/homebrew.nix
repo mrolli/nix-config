@@ -14,6 +14,7 @@
         ];
         casks = [
           "1password"
+          "iina"
           "windows-app"
         ];
       };
