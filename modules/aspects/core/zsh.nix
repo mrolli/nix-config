@@ -95,8 +95,8 @@ let
           pls = "sudo !!";
 
           # Print each PATH entry on a separate line
-          path = "echo -e \${PATH//:/\\n}";
-          fpath = "echo -e \${FPATH//:/\\n}";
+          path = "echo -e \${PATH//:/\\\\n}";
+          fpath = "echo -e \${FPATH//:/\\\\n}";
 
           # IP addresses
           myip = "dig +short myip.opendns.com @resolver1.opendns.com";
