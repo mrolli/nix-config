@@ -139,16 +139,26 @@ shellcheck scripts/darwin-switch-summary.sh
 
 Lints the Darwin switch helper.
 
-## Switching Darwin hosts
+## Switching Darwin hosts/Apply latest config
 
 For the initial activation, when `darwin-rebuild` is not yet installed, use:
 
 ```bash
-sudo nix run nix-darwin -- switch --flake .#id-mrolli-mbp-M4-24
+sudo nix run nix-darwin -- switch --flake .#HOSTNAME
 ```
 
 After bootstrap, use the helper:
 
 ```bash
-scripts/darwin-switch-summary.sh --host id-mrolli-mbp-M4-24
+scripts/darwin-switch-summary.sh [--host HOSTNAME]
+```
+
+
+## Updating flake (bump flake.lock versions)
+
+For updating the flake's inputs to their latest versions and apply again for latest packages:
+
+```bash
+nix flake update
+scripts/darwin-switch-summary.sh [--host HOSTNAME]
 ```
