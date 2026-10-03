@@ -1,10 +1,7 @@
 { inputs, ... }:
 {
   den.aspects.darwin-base.darwin =
-    {
-      config,
-      ...
-    }:
+    { config, ... }:
     {
       imports = [
         inputs.determinate.darwinModules.default
@@ -27,10 +24,5 @@
 
       system.stateVersion = 6;
       system.configurationRevision = inputs.self.rev or inputs.self.dirtyRev or null;
-
-      environment.systemPath = [
-        "${config.homebrew.prefix}/bin"
-        "${config.homebrew.prefix}/sbin"
-      ];
     };
 }
