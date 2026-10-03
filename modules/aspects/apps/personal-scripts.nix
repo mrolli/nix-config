@@ -25,13 +25,34 @@
       };
     in
     lib.mkMerge [
+      # LEGO related CLI scripts
+      {
+        home.packages = with pkgs; [
+          _1password-cli
+          curl
+          jq
+        ];
+
+        home.file."${config.xdg.binHome}/lego_print_storage_labels" = {
+          source = ../files/scripts/common/lego_print_storage_labels;
+          executable = true;
+        };
+        home.file."${config.xdg.binHome}/lego_set_infos" = {
+          source = ../files/scripts/common/lego_set_infos;
+          executable = true;
+        };
+        home.file."${config.xdg.binHome}/lego_set_search" = {
+          source = ../files/scripts/common/lego_set_search;
+          executable = true;
+        };
+      }
+
       {
         home.packages =
           with pkgs;
           [
             curl
             jq
-            _1password-cli
             coreutils
             ffmpeg-headless
             gawk
@@ -48,18 +69,6 @@
             pkgs.util-linux
           ];
 
-        home.file."${config.xdg.binHome}/lego_print_storage_labels" = {
-          source = ../files/scripts/common/lego_print_storage_labels.sh;
-          executable = true;
-        };
-        home.file."${config.xdg.binHome}/lego_set_infos" = {
-          source = ../files/scripts/common/lego_set_infos.sh;
-          executable = true;
-        };
-        home.file."${config.xdg.binHome}/lego_set_search" = {
-          source = ../files/scripts/common/lego_set_search.sh;
-          executable = true;
-        };
         home.file."${config.xdg.binHome}/2pdf" = {
           source = ../files/scripts/common/2pdf;
           executable = true;
