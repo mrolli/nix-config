@@ -14,6 +14,7 @@ in
     darwin = {
       networking.computerName = hostName;
       networking.hostName = hostName;
+      security.sudo.extraConfig = "%staff      ALL = (ALL) ALL";
       system.defaults.smb.NetBIOSName = lib.toUpper hostName;
     };
   };
