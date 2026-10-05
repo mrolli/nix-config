@@ -13,6 +13,7 @@
       den.aspects.editorconfig
       den.aspects.environment
       den.aspects.fzf
+      den.aspects.git
       den.aspects.glow
       den.aspects.mpv
       den.aspects.personal-scripts

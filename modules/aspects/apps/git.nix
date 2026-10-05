@@ -1,0 +1,182 @@
+{ ... }:
+{
+  den.aspects.git.homeManager =
+    {
+      config,
+      lib,
+      pkgs,
+      ...
+    }:
+    {
+      programs.git.enable = true;
+
+      home.packages = with pkgs; [
+        delta
+        git-lfs
+        gh
+      ];
+
+      xdg.configFile = {
+        "git/global-ignore".source = ./git/global-ignore;
+        "git/message-template".source = ./git/message-template;
+      };
+
+      programs.git.settings = {
+        user = {
+          name = "Michael Rolli";
+          email = "michael@rollis.ch";
+          signingkey = "4DFE5E3BF4982CAE";
+        };
+        alias = {
+          aliases = "config --get-regexp alias";
+          branches = "branch --all -vv";
+          ci = "commit -v";
+          cia = "commit -v --amend";
+          co = "checkout";
+          # Show contributors on current branch with number of commits
+          contribs = "shortlog --summary --numbered --email";
+          # Diff current HEAD to common ancestor of current HEAD and main
+          dam = "!f() { git diff $(git merge-base main HEAD)..HEAD; }; f";
+          fap = "fetch --all --prune";
+          # Find branches containing commit
+          fb = "!f() { git branch -a --contains $1; }; f";
+          # Find tags containing commit
+          ft = "!f() { git describe --always --contains $1; }; f";
+          # Find commits by source code
+          fc = "!f() { git log --pretty=format:'%C(yellow)%h  %Cblue%ad  %Creset%s%Cgreen  [%cn] %Cred%d' --decorate --date=short -S$1; }; f";
+          # Find commits by commit message
+          fm = "!f() { git log --pretty=format:'%C(yellow)%h  %Cblue%ad  %Creset%s%Cgreen  [%cn] %Cred%d' --decorate --date=short --grep=$1; }; f";
+          # Show 20 commits on current branch on one line with commit graph
+          l = "log --pretty=oneline -n 20 --graph --abbrev-commit";
+          # Same as above but with more infos like date and contributor
+          lg = "log --graph --pretty=format:'%C(yellow)%h%Creset -%C(red)%d%Creset %s %C(green)(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit";
+          # Show commits with diff the given file was involved in
+          ld = "log --follow -p --stat --";
+          # Make sure to not overwrite new remote changes
+          fpush = "push --force-with-lease --force-if-includes";
+          # Print current worktree's top-level directory
+          r = "!f() { local tl=$(git rev-parse --show-toplevel); echo \${tl##*/}; }; f";
+          # Interactive rebase with the given number of latest commits.
+          reb = "!r() { git rebase -i HEAD~$1; }; r";
+          # Interactive rebase current branch on common ancestor with main.
+          reba = "!r() { git rebase -i $(git merge-base main $(git rev-parse --abbrev-ref HEAD)); }; r";
+          # Remove the old tag with this name and tag the latest commit with it.
+          retag = "!r() { git tag -d $1 && git push origin :refs/tags/$1 && git tag $1; }; r";
+          revert = "revert -n";
+          s = "status -sb";
+          st = "status";
+          tag = "tag -l";
+          # Checkout previous commit on current branch
+          cop = "checkout HEAD^1";
+          # Checkout next commit on current branch
+          con = "!f() { git log --reverse --pretty=%H main | grep -A 1 $(git rev-parse HEAD) | tail -n1 | xargs git checkout; }; f";
+          # List branches already merged into main
+          lm = "!f() { git branch --merged main | grep -v main; }; f";
+          lmr = "!f() { git branch -r --merged main | grep -v origin/main; }; f";
+          # List branches not yet merged into main
+          lnm = "!f() { git branch --no-merged main | grep -v main; }; f";
+          lnmr = "!f() { git branch -r --no-merged main | grep -v origin/main; }; f";
+        };
+        color = {
+          ui = "auto";
+          interactive = true;
+          grep = true;
+          diff = true;
+          status = true;
+        };
+        core = {
+          autocrlf = "input";
+          editor = "nvim";
+          excludesfile = "${config.xdg.configHome}/git/global-ignore";
+          pager = "delta";
+        };
+        grep.lineNumber = true;
+        pack.threads = 0;
+        diff = {
+          renamelimit = 0;
+          renames = "copies";
+          colorMoved = "default";
+        };
+        merge.conflictstyle = "diff3";
+        rebase.autostash = true;
+        commit = {
+          template = "${config.xdg.configHome}/git/message-template";
+          gpgSign = true;
+          verbose = true;
+        };
+        fetch.prune = true;
+        push.default = "current";
+        filter.lfs = {
+          required = true;
+          clean = "git-lfs clean -- %f";
+          smudge = "git-lfs smudge -- %f";
+          process = "git-lfs filter-process";
+        };
+        credential = {
+          "https://github.com".helper = [
+            ""
+            "!gh auth git-credential"
+          ];
+          "https://gist.github.com".helper = [
+            ""
+            "!gh auth git-credential"
+          ];
+          "https://github.unibe.ch".helper = [
+            ""
+            "!gh auth git-credential"
+          ];
+        }
+        // lib.optionalAttrs pkgs.stdenv.hostPlatform.isDarwin {
+          helper = "osxkeychain";
+        };
+        tag.gpgSign = true;
+        init.defaultBranch = "main";
+        pull.ff = "only";
+        interactive.diffFilter = "delta --diff-highlight --features=interactive";
+        delta = {
+          features = "mychama";
+          interactive.keep-plus-minus-markers = false;
+          mychama = {
+            # Based on theme chamaleon with little changes
+            dark = true;
+            navigate = true;
+            line-numbers = true;
+            side-by-side = false;
+            keep-plus-minus-markers = false;
+            syntax-theme = "gruvbox-dark";
+            file-style = "bright-yellow bold";
+            file-decoration-style = "bright-yellow ul";
+            file-added-label = "[+]";
+            file-copied-label = "[==]";
+            file-modified-label = "[*]";
+            file-removed-label = "[-]";
+            file-renamed-label = "[->]";
+            hunk-header-style = "omit";
+            line-numbers-left-format = " {nm:>3} │";
+            line-numbers-left-style = "red";
+            line-numbers-right-format = " {np:>3} │";
+            line-numbers-right-style = "green";
+            line-numbers-minus-style = "red italic black";
+            line-numbers-plus-style = "green italic black";
+            line-numbers-zero-style = "#434C5E italic";
+            minus-style = "bold red";
+            minus-emph-style = "bold #202020 #FF5555";
+            minus-non-emph-style = "bold";
+            plus-style = "bold green";
+            plus-emph-style = "bold #202020 #50FA7B";
+            plus-non-emph-style = "bold";
+            zero-style = "#a89984 italic";
+            blame-code-style = "syntax";
+            blame-format = "{author:<18} ({commit:>9}) {timestamp:^16}";
+            blame-palette = "#2E3440 #3B4252 #434C5E #4C566A";
+            merge-conflict-begin-symbol = "~";
+            merge-conflict-end-symbol = "~";
+            merge-conflict-ours-diff-header-style = "#F1FA8C bold";
+            merge-conflict-ours-diff-header-decoration-style = "#434C5E box";
+            merge-conflict-theirs-diff-header-style = "#F1FA8C bold";
+            merge-conflict-theirs-diff-header-decoration-style = "#434C5E box";
+          };
+        };
+      };
+    };
+}
