@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-host="id-mrolli-mbp-M4-24"
+host=""
 flake_dir="${NIX_SYSTEM_FLAKE_DIR:-$HOME/.nix-config}"
 
 usage() {
   cat <<'EOF'
-Usage: darwin-switch-summary [--host <name>]
+Usage: darwin-switch-summary --host <name>
 
 Builds the Darwin system output, prints a summary of what changes compared to the
 currently running system, shows an applications version-change table, and asks
@@ -14,10 +14,15 @@ whether to switch.
 EOF
 }
 
+if [ $# -ne 2 ]; then
+  usage
+  exit 1
+fi
+
 while [[ $# -gt 0 ]]; do
   case "$1" in
   --host)
-    host="${2:?missing host value}"
+    host="$2"
     shift 2
     ;;
   -h | --help)

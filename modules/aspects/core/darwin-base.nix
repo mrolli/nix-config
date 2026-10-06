@@ -1,7 +1,7 @@
 { inputs, ... }:
 {
   den.aspects.darwin-base.darwin =
-    { ... }:
+    { lib, config, ... }:
     {
       imports = [
         inputs.determinate.darwinModules.default
@@ -21,6 +21,9 @@
           ];
         };
       };
+
+      networking.computerName = config.networking.hostName;
+      system.defaults.smb.NetBIOSName = lib.mkDefault (config.networking.hostName);
 
       power = {
         sleep = {

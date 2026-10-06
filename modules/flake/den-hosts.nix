@@ -15,13 +15,12 @@
   ];
 
   den.hosts.aarch64-darwin = {
-    "id-mrolli-mbp-M4-24" = {
+    "rivendell" = {
       hostName = "id-mrolli";
       users.mrolli = { };
     };
 
     "galadriel" = {
-      hostName = "galadriel";
       users.mrolli = { };
     };
   };

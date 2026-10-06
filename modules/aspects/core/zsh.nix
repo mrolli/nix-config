@@ -121,7 +121,7 @@ let
           else
             {
               # Easy build nix config
-              u = "darwin-switch-summary";
+              u = "darwin-switch-summary --host";
             }
         );
 
