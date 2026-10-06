@@ -21,6 +21,8 @@
                   "-bool ${if value then "true" else "false"}"
                 else if builtins.isInt value then
                   "-int ${toString value}"
+                else if builtins.isFloat value then
+                  "-float ${value}"
                 else if builtins.isString value then
                   "-string ${lib.escapeShellArg value}"
                 else
@@ -38,8 +40,6 @@
       };
 
       home.activation.macosDefaults = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-        run /bin/mkdir -p ${lib.escapeShellArg screenshotDirectory}
-
         ${writeDefaults "NSGlobalDomain" {
           # Set system appearance theme to dark mode
           AppleInterfaceStyle = "Dark";
@@ -67,7 +67,13 @@
           NSAutomaticSpellingCorrectionEnabled = false;
           #NSAutomaticTextCompletionEnabled = true;
 
+          # Enable spring loading for directories
+          #"com.apple.springing".enabled = true;
+
+          # Remove the spring loading delay for directories
+          #"com.apple.springing".delay = 0.1;
           # Trackpad: Disable natural scroll direction; OS default: true
+
           "com.apple.swipescrolldirection" = false;
 
           # Turn F1, F2, ... to standard function keys. Use function key to get the function key
@@ -80,6 +86,8 @@
           KeyRepeat = 1;
         }}
 
+        # Screen
+        run /bin/mkdir -p ${lib.escapeShellArg screenshotDirectory}
         ${writeDefaults "com.apple.screencapture" {
           # Save screenshots to Documents folder; OS default: Desktop
           location = screenshotDirectory;
@@ -90,6 +98,90 @@
           # Disable shadow in screenshots
           disable-shadow = true;
         }}
+
+        ${writeDefaults "com.apple.desktopservices" {
+          # Avoid creating .DS_Store files on network volumes and thumb drives
+          DSDontWriteUSBStores = true;
+          DSDontWriteNetworkStores = true;
+        }}
+
+        # Finder
+        ${writeDefaults "com.apple.finder" {
+          # Sync the Documents folder automatically to the iCloud Drive
+          FXICloudDriveDesktop = true;
+
+          # Sync the Desktop folder automatically to the iCloud Drive
+          FXICloudDriveDocuments = true;
+
+          # Set the default location for new Finder windows
+          # For Desktop paths, use `PfDe` and `file://${config.home.homeDirectory}/Desktop/`
+          # For Home folder, use `PfHm` and `file://${config.home.homeDirectory}/`
+          # For other paths, use `PfLo` and `file:///full/path/here/`
+          #NewWindowTarget -string "PfDe"
+          #NewWindowTargetPath -string "file://${config.home.homeDirectory}/Desktop/"
+          NewWindowTarget = "PfLo";
+          NewWindowTargetPath = "file://${config.home.homeDirectory}/Downloads/";
+
+          # Disable window animations and Get Info animations; required by yabai
+          DisableAllAnimations = true;
+
+          # Show icons for hard drives, servers, and removable media on the desktop
+          ShowExternalHardDrivesOnDesktop = true;
+          ShowHardDrivesOnDesktop = true;
+          ShowMountedServersOnDesktop = true;
+          ShowRemovableMediaOnDesktop = true;
+
+          # Show hidden files by default
+          #AppleShowAllFiles  = true;
+
+          # Show all filename extensions
+          AppleShowAllExtensions = true;
+
+          # Keep folders on top when sorting by name
+          "_FXSortFoldersFirst" = true;
+          "_FXSortFoldersFirstOnDesktop" = true;
+
+          # Show path bar
+          "ShowPathbar" = true;
+
+          # Show status bar
+          "ShowStatusBar" = true;
+
+          # Allow text selection in Quick Look
+          QLEnableTextSelection = true;
+
+          # Display full POSIX path as Finder window title
+          #_FXShowPosixPathInTitle = true;
+
+          # When performing a search, search the current folder by default
+          FXDefaultSearchScope = "SCcf";
+
+          # Disable the warning when changing a file extension
+          FXEnableExtensionChangeWarning = false;
+
+          # Enable snap-to-grid for icons on the desktop and in other icon views
+          #/usr/libexec/PlistBuddy -c "Set :DesktopViewSettings:IconViewSettings:arrangeBy grid" ~/Library/Preferences/com.apple.finder.plist
+          #/usr/libexec/PlistBuddy -c "Set :FK_StandardViewSettings:IconViewSettings:arrangeBy grid" ~/Library/Preferences/com.apple.finder.plist
+          #/usr/libexec/PlistBuddy -c "Set :StandardViewSettings:IconViewSettings:arrangeBy grid" ~/Library/Preferences/com.apple.finder.plist
+
+          # Set the size of icons on the desktop and in other icon views
+          #/usr/libexec/PlistBuddy -c "Set :DesktopViewSettings:IconViewSettings:iconSize 64" ~/Library/Preferences/com.apple.finder.plist
+          #/usr/libexec/PlistBuddy -c "Set :FK_StandardViewSettings:IconViewSettings:iconSize 64" ~/Library/Preferences/com.apple.finder.plist
+          #/usr/libexec/PlistBuddy -c "Set :StandardViewSettings:IconViewSettings:iconSize 64" ~/Library/Preferences/com.apple.finder.plist
+
+          # Use column view in all Finder windows by default
+          # Four-letter codes for the other view modes: `icnv`, `Nlsv`, `clmv`, `Flwv`
+          FXPreferredViewStyle = "clmv";
+
+          # Disable the warning before emptying the Trash
+          WarnOnEmptyTrash = false;
+
+          # Empty Trash securely by default
+          EmptyTrashSecurely = true;
+
+          # Show the ~/Library folder
+        }}
+        run /usr/bin/chflags nohidden ~/Library
       '';
     };
 }
