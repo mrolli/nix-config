@@ -23,7 +23,7 @@
         SVNEDITOR = "nvim";
 
         PAGER = "less";
-        MANPAGER = "bat -plman";
+        MANPAGER = "bat -p";
         LESS = "--quit-if-one-screen --no-init --ignore-case --chop-long-lines --RAW-CONTROL-CHARS --quiet --dumb";
 
         CLICOLOR = "1";
