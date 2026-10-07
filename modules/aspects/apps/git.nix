@@ -38,6 +38,7 @@
           # Diff current HEAD to common ancestor of current HEAD and main
           dam = "!f() { git diff $(git merge-base main HEAD)..HEAD; }; f";
           fap = "fetch --all --prune";
+          fapt = "fetch --all --prune --tags --force";
           # Find branches containing commit
           fb = "!f() { git branch -a --contains $1; }; f";
           # Find tags containing commit
