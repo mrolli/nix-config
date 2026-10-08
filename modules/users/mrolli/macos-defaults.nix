@@ -22,7 +22,7 @@
                 else if builtins.isInt value then
                   "-int ${toString value}"
                 else if builtins.isFloat value then
-                  "-float ${value}"
+                  "-float ${builtins.toJSON value}"
                 else if builtins.isString value then
                   "-string ${lib.escapeShellArg value}"
                 else
@@ -175,16 +175,6 @@
           # Disable the warning when changing a file extension
           FXEnableExtensionChangeWarning = false;
 
-          # Enable snap-to-grid for icons on the desktop and in other icon views
-          #/usr/libexec/PlistBuddy -c "Set :DesktopViewSettings:IconViewSettings:arrangeBy grid" ~/Library/Preferences/com.apple.finder.plist
-          #/usr/libexec/PlistBuddy -c "Set :FK_StandardViewSettings:IconViewSettings:arrangeBy grid" ~/Library/Preferences/com.apple.finder.plist
-          #/usr/libexec/PlistBuddy -c "Set :StandardViewSettings:IconViewSettings:arrangeBy grid" ~/Library/Preferences/com.apple.finder.plist
-
-          # Set the size of icons on the desktop and in other icon views
-          #/usr/libexec/PlistBuddy -c "Set :DesktopViewSettings:IconViewSettings:iconSize 64" ~/Library/Preferences/com.apple.finder.plist
-          #/usr/libexec/PlistBuddy -c "Set :FK_StandardViewSettings:IconViewSettings:iconSize 64" ~/Library/Preferences/com.apple.finder.plist
-          #/usr/libexec/PlistBuddy -c "Set :StandardViewSettings:IconViewSettings:iconSize 64" ~/Library/Preferences/com.apple.finder.plist
-
           # Use column view in all Finder windows by default
           # Four-letter codes for the other view modes: `icnv`, `Nlsv`, `clmv`, `Flwv`
           FXPreferredViewStyle = "clmv";
@@ -195,9 +185,69 @@
           # Empty Trash securely by default
           EmptyTrashSecurely = true;
 
-          # Show the ~/Library folder
         }}
+        # Show the ~/Library folder
         run /usr/bin/chflags nohidden ~/Library
+
+        # Enable snap-to-grid for icons on the desktop and in other icon views
+        #run /usr/libexec/PlistBuddy -c "Set :DesktopViewSettings:IconViewSettings:arrangeBy grid" ${config.home.homeDirectory}/Library/Preferences/com.apple.finder.plist
+        #run /usr/libexec/PlistBuddy -c "Set :FK_StandardViewSettings:IconViewSettings:arrangeBy grid" ${config.home.homeDirectory}/Library/Preferences/com.apple.finder.plist
+        #run /usr/libexec/PlistBuddy -c "Set :StandardViewSettings:IconViewSettings:arrangeBy grid" ${config.home.homeDirectory}/Library/Preferences/com.apple.finder.plist
+
+        # Set the size of icons on the desktop and in other icon views
+        #run /usr/libexec/PlistBuddy -c "Set :DesktopViewSettings:IconViewSettings:iconSize 64" ${config.home.homeDirectory}/Library/Preferences/com.apple.finder.plist
+        #run /usr/libexec/PlistBuddy -c "Set :FK_StandardViewSettings:IconViewSettings:iconSize 64" ${config.home.homeDirectory}/Library/Preferences/com.apple.finder.plist
+        #run /usr/libexec/PlistBuddy -c "Set :StandardViewSettings:IconViewSettings:iconSize 64" ${config.home.homeDirectory}/Library/Preferences/com.apple.finder.plist
+
+
+        # Dock, Dashboard, and hot corners                                            #
+        ${writeDefaults "com.apple.dock" {
+
+          # Dock position; left, bottom, right
+          orientation = "left";
+
+          # Automatically hide the Dock and disable Dock animation
+          autohide = "true";
+          "autohide-time-modifier" = 0;
+          "autohide-delay" = 0;
+
+          # Set the icon size of Dock items
+          tilesize = 36;
+
+          # Speed up Mission Control animations
+          "expose-animation-duration" = 0.15;
+
+          # Make Dock icons of hidden applications translucent
+          showhidden = true;
+
+          # Do not show recent open applictions
+          "show-recents" = false;
+
+          # Do not rearrange Spaces based on most recent use
+          "mru-spaces" = false;
+
+          # Hot corners
+          # Possible values:
+          #  0: no-op
+          #  2: Mission Control
+          #  3: Show application windows
+          #  4: Desktop
+          #  5: Start screen saver
+          #  6: Disable screen saver
+          #  7: Dashboard
+          # 10: Put display to sleep
+          # 11: Launchpad
+          # 12: Notification Center
+          # Bottom right screen corner → Mission Control
+          #wvous-br-corner = 2;
+          #wvous-br-modifier = 0;
+          # Top right screen corner → Put display to sleep
+          #wvous-tr-corner = 10;
+          #wvous-tr-modifier = 0;
+          # Bottom left screen corner → Desktop
+          #wvous-bl-corner = 4;
+          #wvous-bl-modifier = 0;
+        }}
       '';
     };
 }
