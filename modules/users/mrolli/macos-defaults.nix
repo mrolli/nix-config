@@ -31,6 +31,17 @@
             "run /usr/bin/defaults write ${lib.escapeShellArg domain} ${lib.escapeShellArg key} ${typedValue}"
           ) settings
         );
+
+      lightApps =
+        domains:
+        if
+          builtins.isList domains && builtins.all (domain: builtins.isString domain && domain != "") domains
+        then
+          lib.concatMapStringsSep "\n" (
+            domain: writeDefaults domain { NSRequiresAquaSystemAppearance = true; }
+          ) domains
+        else
+          throw "lightApps expects a list of non-empty macOS preference domains";
     in
     lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
       # I'm a nvim user, I want the Escape key nearby!
@@ -40,6 +51,11 @@
       };
 
       home.activation.macosDefaults = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+        ${lightApps [
+          "com.apple.Mail"
+          "com.apple.Safari"
+          "com.microsoft.Word"
+        ]}
         ${writeDefaults "NSGlobalDomain" {
           # Set system appearance theme to dark mode
           AppleInterfaceStyle = "Dark";
