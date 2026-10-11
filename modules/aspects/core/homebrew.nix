@@ -5,6 +5,7 @@
     {
       homebrew = {
         enable = true;
+        enableZshIntegration = true;
         taps = [
           "hashicorp/tap"
         ];
