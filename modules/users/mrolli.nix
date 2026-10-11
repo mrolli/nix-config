@@ -16,6 +16,7 @@
       den.aspects.git
       den.aspects.glow
       den.aspects.mpv
+      den.aspects.neovim
       den.aspects.personal-scripts
       den.aspects.starship
       den.aspects.yt-dlp

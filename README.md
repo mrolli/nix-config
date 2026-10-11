@@ -105,6 +105,32 @@ false` in the Darwin base aspect and configure additions through
 
 ## Development
 
+### Neovim
+
+The shared `neovim` Home Manager aspect deploys the Lua/LazyVim setup from
+`modules/aspects/apps/nvim/`. The `base` host aspect declares Neovim,
+while lazy.nvim installs plugins in Neovim's data directory. Plugin
+installation and updates need network access; the tracked `lazy-lock.json`
+provides the initial plugin pins.
+
+Make sure the new aspect and config files are tracked by Git before using
+`--flake .`; Git-based flakes omit untracked files. Before the **first**
+activation, remove the old `~/.config/nvim` symlink
+(`rm ~/.config/nvim`, not the directory it points to). Home Manager then
+creates a config directory with read-only links for the Lua and other
+configuration files. The lockfile, `lazyvim.json`, and custom `spell/*.add`
+files are copied from the repository only when missing, so LazyVim and
+Neovim can update them. These local updates are **not** automatically
+committed: copy intentional changes back to `modules/aspects/apps/nvim/`.
+Conversely, changes to the repository's copies of these four files do not
+overwrite existing local copies; sync them deliberately when desired.
+Home Manager activation must complete before launching the new config.
+
+This aspect is shared by the user on current Darwin hosts and can also be
+used by future NixOS hosts. External language servers and formatters still
+follow the existing LazyVim/Mason setup; this migration does not yet make
+them Nix-managed.
+
 Enter the development environment with:
 
 ```bash
