@@ -10,6 +10,21 @@
     let
       screenshotDirectory = "${config.home.homeDirectory}/Documents/Screenshots";
 
+      # Scalar type flag for a single `defaults write`/`-dict-add` value, shared
+      # between top-level keys and nested dict entries.
+      scalarTypedValue =
+        domain: key: value:
+        if builtins.isBool value then
+          "-bool ${if value then "true" else "false"}"
+        else if builtins.isInt value then
+          "-int ${toString value}"
+        else if builtins.isFloat value then
+          "-float ${builtins.toJSON value}"
+        else if builtins.isString value then
+          "-string ${lib.escapeShellArg value}"
+        else
+          throw "Unsupported macOS default type for ${domain}.${key}";
+
       writeDefaults =
         domain: settings:
         lib.concatStringsSep "\n" (
@@ -17,16 +32,20 @@
             key: value:
             let
               typedValue =
-                if builtins.isBool value then
-                  "-bool ${if value then "true" else "false"}"
-                else if builtins.isInt value then
-                  "-int ${toString value}"
-                else if builtins.isFloat value then
-                  "-float ${builtins.toJSON value}"
-                else if builtins.isString value then
-                  "-string ${lib.escapeShellArg value}"
+                if builtins.isList value && builtins.all builtins.isString value then
+                  "-array ${lib.concatMapStringsSep " " lib.escapeShellArg value}"
+                else if builtins.isAttrs value then
+                  "-dict-add "
+                  + lib.concatStringsSep " " (
+                    lib.concatLists (
+                      lib.mapAttrsToList (subKey: subValue: [
+                        (lib.escapeShellArg subKey)
+                        (scalarTypedValue domain "${key}.${subKey}" subValue)
+                      ]) value
+                    )
+                  )
                 else
-                  throw "Unsupported macOS default type for ${domain}.${key}";
+                  scalarTypedValue domain key value;
             in
             "run /usr/bin/defaults write ${lib.escapeShellArg domain} ${lib.escapeShellArg key} ${typedValue}"
           ) settings
@@ -51,11 +70,15 @@
       };
 
       home.activation.macosDefaults = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+        # Applications that shall always use the light mode.
         ${lightApps [
           "com.apple.Mail"
           "com.apple.Safari"
           "com.microsoft.Word"
         ]}
+
+
+        # Settings in Global Domain
         ${writeDefaults "NSGlobalDomain" {
           # Set system appearance theme to dark mode
           AppleInterfaceStyle = "Dark";
@@ -81,7 +104,7 @@
           NSAutomaticPeriodSubstitutionEnabled = false;
           NSAutomaticQuoteSubstitutionEnabled = false;
           NSAutomaticSpellingCorrectionEnabled = false;
-          #NSAutomaticTextCompletionEnabled = true;
+          NSAutomaticTextCompletionEnabled = true;
 
           # Enable spring loading for directories
           #"com.apple.springing".enabled = true;
@@ -102,7 +125,8 @@
           KeyRepeat = 1;
         }}
 
-        # Screen
+
+        # Screen Captures
         run /bin/mkdir -p ${lib.escapeShellArg screenshotDirectory}
         ${writeDefaults "com.apple.screencapture" {
           # Save screenshots to Documents folder; OS default: Desktop
@@ -115,13 +139,15 @@
           disable-shadow = true;
         }}
 
+        # Desktop Service
         ${writeDefaults "com.apple.desktopservices" {
           # Avoid creating .DS_Store files on network volumes and thumb drives
           DSDontWriteUSBStores = true;
           DSDontWriteNetworkStores = true;
         }}
 
-        # Finder
+
+        # Finder Settings
         ${writeDefaults "com.apple.finder" {
           # Sync the Documents folder automatically to the iCloud Drive
           FXICloudDriveDesktop = true;
@@ -200,7 +226,7 @@
         #run /usr/libexec/PlistBuddy -c "Set :StandardViewSettings:IconViewSettings:iconSize 64" ${config.home.homeDirectory}/Library/Preferences/com.apple.finder.plist
 
 
-        # Dock, Dashboard, and hot corners                                            #
+        # Dock, Dashboard, and Hot Corners                                            #
         ${writeDefaults "com.apple.dock" {
 
           # Dock position; left, bottom, right
@@ -220,7 +246,10 @@
           # Make Dock icons of hidden applications translucent
           showhidden = true;
 
-          # Do not show recent open applictions
+          # Trackpad: Enable App Exposé gesture; OS default: false
+          showAppExposeGestureEnabled = true;
+
+          # Do not show recent open applications
           "show-recents" = false;
 
           # Do not rearrange Spaces based on most recent use
@@ -247,6 +276,143 @@
           # Bottom left screen corner → Desktop
           #wvous-bl-corner = 4;
           #wvous-bl-modifier = 0;
+        }}
+
+
+        # Trackpad, mouse, keyboard, Bluetooth accessories, and input
+        ${writeDefaults "com.apple.AppleMultitouchTrackpad" {
+          # Trackpad: Haptic feedback (light, silent clicking)
+          FirstClickThreshold = 0;
+          ActuationStrength = 0;
+
+          # Trackpad: Enable tap to click; OS default: false
+          Clicking = true;
+        }}
+        ${writeDefaults "com.apple.driver.AppleBluetoothMultitouch.trackpad" {
+          # Trackpad: Enable tap to click; OS default: false
+          Clicking = true;
+        }}
+
+        # Show text input menu in menu bar
+        ${writeDefaults "com.apple.TextInputMenu" {
+          visible = true;
+        }}
+
+
+
+        # Safari Settings
+        ${writeDefaults "com.apple.Safari" {
+          # Restore browsing session at launch
+          AlwaysRestoreSessionAtLaunch = true;
+
+          # Always show the tab bar
+          AlwaysShowTabBar = true;
+
+          # Show overlay status bar
+          ShowOverlayStatusBar = true;
+
+          # Show the favorites bar
+          ShowFavoritesBar-v2 = false;
+
+          # Set default search eingine to DuckDuckGo, in private surfing mode too
+          SearchProviderIdentifier = "com.duckduckgo";
+          SearchProviderShortName = "DuckDuckGo";
+          PrivateSearchEngineUsesNormalSearchEngineToggle = true;
+
+          # Do not preload top hits in serach bar
+          PreloadTopHit = false;
+
+          # Open new windows and tabs with the start page
+          NewWindowBehavior = 4;
+          NewTabBehavior = 4;
+          NewTabPageSetByUserGesture = true;
+
+          # Set HomePage to an empty string
+          HomePage = "about:blank";
+
+          # Enable the Developer menu in Safari
+          IncludeDevelopMenu = true;
+          DeveloperMenuVisibility = true;
+          WebKitDeveloperExtrasEnabledPreferenceKey = true;
+
+          # Disable AutoFill
+          #AutoFillFromAddressBook = false;
+          AutoFillPasswords = false;
+          #AutoFillCreditCardData = false;
+          #AutoFillMiscellaneousForms = false;
+
+          # Enable “Do Not Track”
+          SendDoNotTrackHTTPHeader = true;
+
+          # Warn about fraudulent websites
+          WarnAboutFraudulentWebsites = true;
+
+          # Update extensions automatically
+          InstallExtensionUpdatesAutomatically = true;
+        }}
+        ${writeDefaults "com.apple.Safari.SandboxBroker" {
+          ShowDevelopMenu = true;
+        }}
+
+
+        # Time Machine Settings
+        ${writeDefaults "com.apple.TimeMachine" {
+          # Prevent Time Machine from prompting to use new hard drives as backup volume
+          DoNotOfferNewDisksForBackup = true;
+
+          # Ignore certain paths from Time Machine backupss
+          SkipPaths = [
+            "~mrolli/.ansible"
+            "~mrolli/.ansible_async"
+            "~mrolli/.cache"
+            "~mrolli/.cargo"
+            "~mrolli/.conda"
+            "~mrolli/.colima"
+            "~mrolli/.docker"
+            "~mrolli/.local"
+            "~mrolli/.npm"
+            "~mrolli/.ollama/models"
+            "~mrolli/.packer.d"
+            "~mrolli/.vagrant"
+            "~mrolli/.vagrant.d"
+            "~mrolli/Downloads/NoBackup"
+          ];
+        }}
+
+        # Disable local Time Machine backups
+        #run tmutil disablelocal
+
+
+        # Printing
+        ${writeDefaults "com.apple.print.PrintingPrefs" {
+          # Automatically quit printer app once the print jobs complete
+          "Quit When Finished" = true;
+        }}
+
+
+        # Activity Monitor
+        ${writeDefaults "com.apple.ActivityMonitor" {
+          # Show the main window when launching Activity Monitor
+          OpenMainWindow = true;
+
+          # Show all processes in Activity Monitor
+          ShowCategory = 0;
+        }}
+
+
+        # Messages Settings
+        ${writeDefaults "com.apple.messageshelper.MessageController" {
+          # Disable smart quote substitution and spell checking in the message input line
+          SOInputLineSettings = {
+            automaticQuoteSubstitutionEnabled = false;
+            continuousSpellCheckingEnabled = false;
+          };
+        }}
+
+        # App Store
+        ${writeDefaults "com.apple.appstore" {
+          # Disable in-app rating requests from apps downloaded from the App Store.
+          InAppReviewEnabled = false;
         }}
       '';
     };
