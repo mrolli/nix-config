@@ -10,5 +10,8 @@
       den.aspects.homebrew
       den.aspects.starship
     ];
+
+    #homebrew.onActivation.cleanup = "uninstall";
+
   };
 }
