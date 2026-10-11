@@ -31,6 +31,13 @@
       home-manager.backupFileExtension = "backup";
     };
 
-    homeManager.home.stateVersion = "26.05";
+    homeManager = {
+      home.stateVersion = "26.05";
+
+      # Avoid the upstream "options.json" store-path warning from
+      # make-options-doc by not generating the home-configuration.nix
+      # manpage. See https://github.com/nix-community/home-manager/issues/7935
+      manual.manpages.enable = false;
+    };
   };
 }
