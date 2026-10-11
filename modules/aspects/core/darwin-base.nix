@@ -37,6 +37,9 @@
       system = {
         stateVersion = 6;
         configurationRevision = inputs.self.rev or inputs.self.dirtyRev or null;
+
+        # No startup chime
+        startup.chime = false;
       };
 
       time.timeZone = "Europe/Zurich";
