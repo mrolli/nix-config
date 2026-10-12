@@ -2,12 +2,13 @@
 return {
   {
     "neovim/nvim-lspconfig",
-    ---@class PluginLspOpts
     opts = {
-      ---@type lspconfig.options
       servers = {
-        -- automatically install with mason and load with lspconfig
+        -- automatically lsp configurations
+        bashls = {},
         bicep = {},
+        marksman = {},
+        nixd = {},
         phpactor = false, -- disable if you're using devsense instead
         phptools = {
           settings = {
