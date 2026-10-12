@@ -1,8 +1,8 @@
 # Install and configure glow using Home Manager
 # https://github.com/charmbracelet/glow
 { ... }:
-let
-  homeModule =
+{
+  den.aspects.glow.homeManager =
     { pkgs, ... }:
     let
       yaml = pkgs.formats.yaml { };
@@ -18,7 +18,4 @@ let
         all = false;
       };
     };
-in
-{
-  den.aspects.glow.homeManager = homeModule;
 }
