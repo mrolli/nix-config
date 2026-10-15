@@ -337,7 +337,7 @@
 
           # Disable AutoFill
           #AutoFillFromAddressBook = false;
-          AutoFillPasswords = false;
+          AutoFillPasswords = true;
           #AutoFillCreditCardData = false;
           #AutoFillMiscellaneousForms = false;
 
