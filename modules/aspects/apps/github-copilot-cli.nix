@@ -8,6 +8,7 @@
 {
   den.aspects.git.homeManager =
     {
+      config,
       pkgs,
       ...
     }:
@@ -22,6 +23,8 @@
         enable = true;
         # copilot moves quickly; take it from nixpkgs-unstable
         package = (inputs.self.lib.unstablePkgs pkgs.stdenv.hostPlatform.system).github-copilot-cli;
+        # Explicitly set config dir to XDG configuration, do not rely on preferXdgDirectories
+        configDir = "${config.xdg.configHome}/copilot";
 
         # https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-config-dir-reference
         settings = {
@@ -51,7 +54,7 @@
           renderMarkdown = true;
           respectGitignore = true;
           screenReader = false;
-          theme = "default";
+          theme = "dim";
         };
 
         mcpServers = {
