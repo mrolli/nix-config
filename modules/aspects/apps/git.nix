@@ -1,3 +1,6 @@
+# Install and configure git using Home Manager
+# https://nix-community.github.io/home-manager/options/home-manager/programs/git.html
+# https://github.com/sharkdp/bat
 { ... }:
 {
   den.aspects.git.homeManager =
@@ -13,7 +16,6 @@
       home.packages = with pkgs; [
         delta
         git-lfs
-        gh
       ];
 
       xdg.configFile = {
