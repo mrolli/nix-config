@@ -9,7 +9,7 @@ let
       # devenv moves quickly; take it from nixpkgs-unstable rather than the
       # pinned `nixpkgs` release used for the rest of the system.
       environment.systemPackages = [
-        inputs.nixpkgs-unstable.legacyPackages.${pkgs.stdenv.hostPlatform.system}.devenv
+        (inputs.self.lib.unstablePkgs pkgs.stdenv.hostPlatform.system).devenv
       ];
     };
 

@@ -11,6 +11,7 @@
     # Tracks nixpkgs-unstable independently (no `follows`), so individual
     # aspects can opt a specific package into a newer release than the
     # pinned `nixpkgs` input.
+    # See unstablePkgs helper below.
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 
     # den: the aspect/host framework that assembles the flake outputs from the
@@ -35,6 +36,17 @@
   outputs =
     inputs:
     inputs.flake-parts.lib.mkFlake { inherit inputs; } {
+      flake.lib.unstablePkgs =
+        system:
+        # This keeps the unstable import DRY and ensures every unstable package
+        # gets the same unfree setting.
+        # Use this helper anywhere you need an unstable package:
+        # (inputs.self.lib.unstablePkgs pkgs.stdenv.hostPlatform.system).<pkgs-name>
+        import inputs."nixpkgs-unstable" {
+          inherit system;
+          config.allowUnfree = true;
+        };
+
       imports = [
         # den's flake-parts module: defines the `den.*` options, resolves the
         # aspects/hosts/defaults published under `modules/`, and generates the
