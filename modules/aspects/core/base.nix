@@ -9,12 +9,8 @@ let
         azure-cli
         cargo
         eza
-        git
-        github-cli
-        github-copilot-cli
         gnupg
         jq
-        neovim
         yq-go
       ];
     };
