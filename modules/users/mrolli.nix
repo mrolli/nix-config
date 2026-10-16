@@ -1,6 +1,10 @@
 { den, ... }:
 {
   den.aspects.mrolli = {
+    homeManager = {
+      home.preferXdgDirectories = true;
+    };
+
     includes = [
       den.batteries.host-aspects
       den.batteries.define-user
