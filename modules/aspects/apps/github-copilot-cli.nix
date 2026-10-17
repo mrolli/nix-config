@@ -6,7 +6,7 @@
   ...
 }:
 {
-  den.aspects.git.homeManager =
+  den.aspects.github-copilot-cli.homeManager =
     {
       config,
       pkgs,

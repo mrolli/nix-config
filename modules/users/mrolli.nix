@@ -18,6 +18,8 @@
       den.aspects.environment
       den.aspects.fzf
       den.aspects.git
+      den.aspects.github-cli
+      den.aspects.github-copilot-cli
       den.aspects.glow
       den.aspects.mpv
       den.aspects.neovim
