@@ -9,9 +9,13 @@
   den.aspects.github-copilot-cli.homeManager =
     {
       config,
+      lib,
       pkgs,
       ...
     }:
+    let
+      thisCfg = config.programs.github-copilot-cli;
+    in
     {
       # Dependencies used cor mcp serves
       home.packages = with pkgs; [
@@ -54,7 +58,7 @@
           renderMarkdown = true;
           respectGitignore = true;
           screenReader = false;
-          theme = "dim";
+          theme = "github";
         };
 
         mcpServers = {
@@ -85,5 +89,15 @@
           };
         };
       };
+
+      # Home Manager 26.05 writes these settings to config.json; newer Copilot
+      # CLI releases read settings.json instead.
+      # TODO: Remove after switching HomeManager to 26.11
+      home.file."${thisCfg.configDir}/config.json".enable = lib.mkForce false;
+      home.file."${thisCfg.configDir}/settings.json" =
+        lib.mkIf (thisCfg.enable && thisCfg.settings != { })
+          {
+            source = (pkgs.formats.json { }).generate "github-copilot-cli-settings.json" (thisCfg.settings);
+          };
     };
 }
