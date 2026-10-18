@@ -73,7 +73,6 @@
         # Applications that shall always use the light mode.
         ${lightApps [
           "com.apple.Mail"
-          "com.apple.Safari"
           "com.microsoft.Word"
         ]}
 
