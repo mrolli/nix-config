@@ -19,7 +19,7 @@ Den is the assembly layer:
 
 1. `den.hosts` declares machines and the users on them.
 2. `den.aspects.*` declares reusable, host, or user configuration.
-3. `den.default` declares defaults and batteries shared across entities.
+3. `den.default` declares defaults and batteries shared across entities
 4. Den generates outputs such as `darwinConfigurations.<host>`.
 
 ## Current layout
@@ -29,23 +29,60 @@ Den is the assembly layer:
   - `den-defaults.nix` applies shared batteries and Home Manager defaults.
 - `modules/aspects/core/` — reusable platform/core aspects such as `base`,
   `darwin-base`, and `homebrew`.
-- `modules/aspects/apps/` — reusable application or user-program aspects, such
-  as `starship`.
-- `modules/hosts/` — host-owned aspects named after the host output.
-- `modules/users/` — user-owned aspects named after the user.
+- `modules/aspects/apps/` — application aspects that users or hosts opt into.
+  These can enable a Home Manager program and supply settings intentionally
+  shared by everyone who includes the aspect.
+- `modules/hosts/<host>.nix` — host aspects named after their Den output,
+  composing machine-level policy and features.
+- `modules/users/<user>.nix` — user aspects that compose reusable aspects and
+  user-specific batteries and settings.
+- `modules/aspects/files/` — sources deployed by aspects, such as scripts and
+  shell configuration files; these are not Den aspects themselves.
+
+As user configuration grows, keep `modules/users/<user>.nix` as a short
+composition file and split personal settings by concern into
+`modules/users/<user>/<concern>.nix`. All files under `modules/` are imported
+automatically, so these concern files can contribute to the **same**
+`den.aspects.<user>` without manual imports or a separately named aspect for
+each file. For concerns whose settings should be shared across users, a
+reusable app aspect can enable a Home Manager program while a user concern
+file supplies individual values. Git currently takes a different approach:
+`modules/aspects/apps/git.nix` owns the entire Git configuration, including
+`mrolli`'s identity, aliases, signing behavior, credential helpers, delta
+settings, and the ignore file and commit template under
+`modules/aspects/apps/git/`. The user aspect opts into it:
+
+```nix
+# modules/users/mrolli.nix (excerpt)
+den.aspects.mrolli.includes = [ den.aspects.git ];
+```
+
+Do not include this Git aspect for another account as-is: it would inherit
+`mrolli`'s identity and preferences. If Git settings need to differ per user
+later, split the personal values back into user concern files. The same
+boundary could apply to Starship; the current `starship.nix` still contains
+one user's settings.
+
+Home Manager settings that apply only on macOS can likewise live under
+`modules/users/<user>/macos-defaults.nix`, gated to Darwin. For example,
+`modules/users/mrolli/macos-defaults.nix` writes individual preference keys
+through Home Manager activation, preserving unrelated settings in those
+domains, and creates `~/Documents/Screenshots` for the configured screenshot
+location. It also remaps Caps Lock to Escape for this user via Home Manager's
+macOS key-remapping service, which reapplies the mapping at login. Keep genuinely
+shared macOS preferences in an opt-in reusable aspect instead. Avoid managing
+the same preference key in both a user's Home Manager configuration and
+nix-darwin's `system.defaults`, or the same keyboard mapping in both Home
+Manager and nix-darwin's `system.keyboard`.
 
 The active Darwin host outputs are:
 
-- `darwinConfigurations.id-mrolli-mbp-M4-24`
+- `darwinConfigurations.riendell`
 - `darwinConfigurations.galadriel`
-
-The `id-mrolli-mbp-M4-24` output intentionally differs from the machine
-hostname: the host/output key is `id-mrolli-mbp-M4-24`, while the Darwin
-hostname is `id-mrolli` and the NetBIOS name is `ID-MROLLI`.
 
 ## Adding configuration
 
-Reusable concerns should be added as aspects under `modules/aspects/`.
+Reusable concerns that are for all users should be added as aspects under `modules/aspects/`.
 
 Example:
 
@@ -105,31 +142,8 @@ false` in the Darwin base aspect and configure additions through
 
 ## Development
 
-### Neovim
-
-The shared `neovim` Home Manager aspect deploys the Lua/LazyVim setup from
-`modules/aspects/apps/nvim/`. The `base` host aspect declares Neovim,
-while lazy.nvim installs plugins in Neovim's data directory. Plugin
-installation and updates need network access; the tracked `lazy-lock.json`
-provides the initial plugin pins.
-
 Make sure the new aspect and config files are tracked by Git before using
-`--flake .`; Git-based flakes omit untracked files. Before the **first**
-activation, remove the old `~/.config/nvim` symlink
-(`rm ~/.config/nvim`, not the directory it points to). Home Manager then
-creates a config directory with read-only links for the Lua and other
-configuration files. The lockfile, `lazyvim.json`, and custom `spell/*.add`
-files are copied from the repository only when missing, so LazyVim and
-Neovim can update them. These local updates are **not** automatically
-committed: copy intentional changes back to `modules/aspects/apps/nvim/`.
-Conversely, changes to the repository's copies of these four files do not
-overwrite existing local copies; sync them deliberately when desired.
-Home Manager activation must complete before launching the new config.
-
-This aspect is shared by the user on current Darwin hosts and can also be
-used by future NixOS hosts. External language servers and formatters still
-follow the existing LazyVim/Mason setup; this migration does not yet make
-them Nix-managed.
+`--flake .`; Git-based flakes omit untracked files.
 
 Enter the development environment with:
 
@@ -158,12 +172,6 @@ nix flake check
 ```
 
 Primary repository validation. It evaluates the Den-generated flake outputs.
-
-```bash
-shellcheck scripts/darwin-switch-summary.sh
-```
-
-Lints the Darwin switch helper.
 
 ## Switching Darwin hosts/Apply latest config
 
@@ -195,7 +203,7 @@ itself activate them:
 git diff -- flake.lock
 nix flake show
 nix flake check
-darwin-rebuild build --flake .#id-mrolli-mbp-M4-24
+darwin-rebuild build --flake .#id-mrolli
 darwin-rebuild build --flake .#galadriel
 ```
 
@@ -222,7 +230,7 @@ Silicon. Nixpkgs 26.05 is the final release supporting Intel (`x86_64-darwin`);
 ```bash
 git status --short
 git diff
-nix eval --raw .#darwinConfigurations.id-mrolli-mbp-M4-24.pkgs.stdenv.hostPlatform.system
+nix eval --raw .#darwinConfigurations.id-mrolli.pkgs.stdenv.hostPlatform.system
 nix eval --raw .#darwinConfigurations.galadriel.pkgs.stdenv.hostPlatform.system
 ```
 
