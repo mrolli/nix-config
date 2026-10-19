@@ -59,7 +59,8 @@
             git
             git-filter-repo
             gh
-            ncurses
+            # ncurses also ships terminfo for ghostty; let ghostty's own entry win.
+            (lib.lowPrio ncurses)
             openssl
             pandoc
             pdfTex

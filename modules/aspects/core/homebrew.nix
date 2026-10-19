@@ -15,6 +15,7 @@
         ];
         casks = [
           "1password"
+          "ghostty"
           "iina"
           "windows-app"
         ];

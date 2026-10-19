@@ -17,6 +17,7 @@
       den.aspects.editorconfig
       den.aspects.environment
       den.aspects.fzf
+      den.aspects.ghostty
       den.aspects.git
       den.aspects.github-cli
       den.aspects.github-copilot-cli
