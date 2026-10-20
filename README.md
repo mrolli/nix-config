@@ -157,6 +157,28 @@ for:
 - `nixfmt`
 - `shellcheck`
 
+The DAG of this flake can be debugged by printing the resulting configuration using:
+
+```bash
+Start the interacting shell
+nix repl
+# Load the flake
+nix-repl> :lf .
+# Print the whole configuration graph of a host
+nix-repl> :p darwinConfigurations.<host>.config
+# Quit
+nix-repl> :q
+```
+
+To debug a specific value and find out, what it is computed to, i.e.
+
+```bash
+# Print the hostname of a host
+nix eval .#darwinConfigurations.<host>.config.networking.hostName
+# Print the settings of Ghostty of a host
+nix eval --json .#darwinConfigurations.<host>.config.home-manager.users.mrolli.programs.ghostty.settings | jq
+```
+
 ## Validation
 
 Run from the repository root:
@@ -209,6 +231,17 @@ darwin-rebuild build --flake .#galadriel
 
 Use `scripts/darwin-switch-summary.sh [--host HOSTNAME]` after reviewing the
 build and deciding to activate it.
+
+## Reverting to last known-good configuration
+
+Recover the machine now: nix-darwin keeps system generations independently of Git. On the Mac you switched, list them and activate the last one you know worked:
+
+```bash
+sudo darwin-rebuild --list-generations
+sudo darwin-rebuild --rollback
+```
+
+`--rollback` selects the previous generation; if that one was also bad, use `sudo darwin-rebuild --switch-generation <number>`. These commands select the stored system and run its activation, without evaluating the current checkout. Because Home Manager is integrated into the Darwin configuration, its managed configuration is activated with that system generation.
 
 ## Upgrading to a new stable release
 
