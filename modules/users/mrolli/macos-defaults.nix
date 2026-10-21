@@ -340,6 +340,9 @@
           #AutoFillCreditCardData = false;
           #AutoFillMiscellaneousForms = false;
 
+          # Disable "Correct Spelling Automatically"
+          WebAutomaticSpellingCorrectionEnabled = false;
+
           # Enable “Do Not Track”
           SendDoNotTrackHTTPHeader = true;
 
