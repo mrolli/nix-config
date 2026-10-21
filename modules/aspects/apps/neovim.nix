@@ -18,6 +18,7 @@
         installCoreDependencies = true;
 
         extraPackages = with pkgs; [
+          # Tools
           markdownlint-cli2
           marksman
           markdown-toc
@@ -39,6 +40,10 @@
 
           util.dot.enable = true;
         };
+
+        treesitterParsers = with pkgs.vimPlugins.nvim-treesitter-parsers; [
+          nix
+        ];
       };
     };
 }
