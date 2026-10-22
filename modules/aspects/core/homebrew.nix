@@ -7,11 +7,9 @@
         enable = true;
         enableZshIntegration = true;
         taps = [
-          "hashicorp/tap"
         ];
         brews = [
           "id-unibe-ch/tap/bildschirmUniversum"
-          "hashicorp/tap/terraform"
         ];
         casks = [
           "1password"
