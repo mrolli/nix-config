@@ -55,8 +55,6 @@ let
           saveNoDups = true;
         };
 
-        historySubstringSearch.enable = true;
-
         # INC_APPEND_HISTORY_TIME/NO_BEEP have no dedicated home-manager
         # option; add them alongside the options `history` above derives.
         setOptions = [
@@ -187,8 +185,8 @@ let
             # Search history with Up/Down based on what's already typed on
             # the prompt line. Bound after zsh-vi-mode loads (order 900) so
             # its own arrow-key bindings don't win.
-            #bindkey "^[[A" history-beginning-search-backward
-            #bindkey "^[[B" history-beginning-search-forward
+            bindkey "^[[A" history-beginning-search-backward
+            bindkey "^[[B" history-beginning-search-forward
 
             # 1Password CLI + Terraform completions, kept from the old
             # config; both are Homebrew-managed (see homebrew.nix).
@@ -200,16 +198,18 @@ let
               complete -C "$(command -v terraform)" terraform
             fi
 
-            source ${../files/zsh/functions.zsh}
             if command -v devenv &>/dev/null 2>&1; then
               eval "$(devenv hook zsh)"
             fi
+
+            source ${zsh/functions.zsh}
           ''
 
           (lib.optionalString pkgs.stdenv.hostPlatform.isDarwin ''
+
             # macOS-only helper functions, ported from the
             # mrolli/zsh-macos-goodies zinit plugin.
-            source ${../files/zsh/macos-goodies.zsh}
+            source ${zsh/macos-goodies.zsh}
           '')
         ];
       };

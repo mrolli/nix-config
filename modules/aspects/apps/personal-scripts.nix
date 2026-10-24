@@ -154,7 +154,7 @@
           };
         };
 
-        programs.zsh.siteFunctions._music = builtins.readFile ../files/zsh/completions/_music;
+        programs.zsh.siteFunctions._music = builtins.readFile ../core/zsh/completions/_music;
         programs.zsh.initContent = ''
           compdef _music music
         '';
