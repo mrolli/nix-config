@@ -1,0 +1,26 @@
+#!/usr/bin/osascript
+
+on run
+  if application "Music" is running then
+    tell application "Music"
+      if player state is stopped then
+        set display to "No Track Playing"
+      else
+        set track_artist to artist of current track
+        set track_name to name of current track
+        set track_duration to duration of current track
+        set seconds_played to player position
+        set state to ""
+        if player state is paused then
+          set state to " "
+        else
+          set state to " "
+        end if
+
+        set display to state & track_artist & " - " & track_name & " - " & (round ((seconds_played / track_duration) * 100)) & "%"
+      end if
+    end tell
+  else
+    set display to "Music app is not running"
+  end if
+end run
