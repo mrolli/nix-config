@@ -29,6 +29,10 @@ let
         };
 
         syntaxHighlighting.enable = true;
+        syntaxHighlighting.highlighters = [
+          "brackets"
+        ];
+        # fastSyntaxHighlighting.enable = true;
 
         # bashcompinit enables bash-style `complete -C ...` completions
         # (used by Terraform); compinit's cache moves under XDG_CACHE_HOME,
@@ -148,18 +152,14 @@ let
             # (zsh-users/zsh-completions), must be on $fpath before compinit.
             fpath=(${pkgs.zsh-completions}/share/zsh/site-functions $fpath)
 
+            # https://thevaluable.dev/zsh-completion-guide-examples/
             _comp_options+=(globdots) # with hidden files
             zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
             zstyle ':completion:*' completer _extensions _complete
             zstyle ':completion:*' menu no
             zstyle ':completion:*' use-cache on
             zstyle ':completion:*' cache-path "${config.xdg.cacheHome}/zsh/.zcompcache"
-            zstyle ':completion:*:*:*:*:descriptions' format '%F{green} -- %d --%f'
-            zstyle ':completion:*:*:*:*:corrections' format '%F{yellow}!- %d (errors: %e) -!%f'
-            zstyle ':completion:*:messages' format ' %F{purple} -- %d --%f'
             zstyle ':completion:*:warnings' format ' %F{red}-- no matches found --%f'
-            zstyle ':completion:*' group-name ""
-            zstyle ':completion:*:*:-command-:*:*' group-order alias builtins functions commands
             zstyle ':completion:*:default' list-colors ''${(s.:.)LS_COLORS}
             zstyle ':completion:*' squeeze-slashes true
             zstyle ':completion:*' complete-options true
