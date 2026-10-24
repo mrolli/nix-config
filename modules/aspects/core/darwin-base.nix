@@ -24,6 +24,7 @@
 
       networking.computerName = config.networking.hostName;
       system.defaults.smb.NetBIOSName = lib.mkDefault (config.networking.hostName);
+      security.pam.services.sudo_local.touchIdAuth = true;
 
       power = {
         sleep = {
