@@ -7,6 +7,7 @@
 
       den.aspects.base
       den.aspects.darwin-base
+      den.aspects.azure-cli
       den.aspects.homebrew
       den.aspects.starship
     ];

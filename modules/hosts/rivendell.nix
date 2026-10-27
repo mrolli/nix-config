@@ -4,6 +4,7 @@
     includes = [
       den.aspects.base
       den.aspects.darwin-base
+      den.aspects.azure-cli
       den.aspects.devenv
       den.aspects.homebrew
     ];
