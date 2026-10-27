@@ -322,3 +322,36 @@ sudo nixos-rebuild switch --flake .#<nixos-host>
 Keep each host's `system.stateVersion` and each user's `home.stateVersion`
 unchanged during release upgrades. Read the release notes before updating
 inputs and handle any explicitly documented migrations separately.
+
+## FAQ
+
+### How to override an aspect like starship on user-level?
+
+Home Manager settings from a shared aspect such as
+`modules/aspects/apps/starship.nix` are generated per user. A user who receives
+the aspect, either directly or through a host aspect with
+`den.batteries.host-aspects`, can adjust it in their own user aspect; Home
+Manager merges both definitions into that user's `starship.toml`:
+
+```nix
+# modules/users/<user>.nix
+{ lib, ... }:
+{
+  den.aspects.<user>.homeManager = {
+    programs.starship.settings = {
+      # Keys the shared aspect does not set merge normally.
+      character.success_symbol = "[➜](bold green)";
+
+      # Keys the shared aspect already sets need mkForce.
+      palette = lib.mkForce "catppuccin";
+      format = lib.mkForce "$directory$character";
+    };
+  };
+}
+```
+
+- Without `lib.mkForce`, conflicting scalar values fail evaluation.
+- Replace the whole configuration with
+  `programs.starship.settings = lib.mkForce { ... };`.
+- To opt out entirely, do not include the aspect for that user, or do not
+  include `den.batteries.host-aspects` when the aspect comes from a host.
