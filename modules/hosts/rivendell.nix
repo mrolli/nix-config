@@ -9,6 +9,8 @@
       den.aspects.homebrew
     ];
 
+    #homebrew.onActivation.cleanup = "uninstall";
+
     darwin =
       { ... }:
       {

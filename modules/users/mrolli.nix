@@ -13,6 +13,7 @@
 
       den.aspects.asciinema
       den.aspects.bat
+      den.aspects.devenv
       den.aspects.direnv
       den.aspects.editorconfig
       den.aspects.environment
