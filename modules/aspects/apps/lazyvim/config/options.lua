@@ -12,6 +12,12 @@
 -- set spellcheck languages to English and Swiss German
 vim.o.spelllang = "en,de_ch"
 
+-- word lists for zg (English) and 2zg (German); Nix links them to the repository
+vim.opt.spellfile = {
+  vim.fn.stdpath("config") .. "/spell/en.utf-8.add",
+  vim.fn.stdpath("config") .. "/spell/de.utf-8.add",
+}
+
 -- add support for bicep and bicepparam files
 vim.filetype.add({
   extension = {
