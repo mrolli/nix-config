@@ -29,6 +29,20 @@
     lazyvim.url = "github:pfassina/lazyvim-nix";
     lazyvim.inputs.nixpkgs.follows = "nixpkgs-unstable";
 
+    # Third-party Copilot CLI skills, pinned as plain source trees and linked
+    # into ~/.config/copilot/skills by modules/aspects/apps/github-copilot-cli.nix.
+    skill-nixos-management = {
+      url = "github:michalzubkowicz/nixos-management-skill";
+      flake = false;
+    };
+    skill-nixos-best-practices = {
+      url = "github:lihaoze123/my-claude-code";
+      flake = false;
+    };
+    skill-nixomatic = {
+      url = "github:curriedsoftware/nixomatic-skill";
+      flake = false;
+    };
     flake-parts.url = "github:hercules-ci/flake-parts";
     import-tree.url = "github:vic/import-tree";
   };

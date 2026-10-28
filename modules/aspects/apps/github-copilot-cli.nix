@@ -14,6 +14,17 @@
       ...
     }:
     let
+      # Every subdirectory of files/copilot/skills is a local skill.
+      localSkills = lib.mapAttrs (name: _: "copilot/skills/${name}") (
+        lib.filterAttrs (_: type: type == "directory") (builtins.readDir (./copilot/skills))
+      );
+
+      externalSkills = {
+        nixos-managing = "${inputs.skill-nixos-management}/nixos-managing";
+        nixos-best-practices = "${inputs.skill-nixos-best-practices}/skills/nixos-best-practices";
+        nixomatic = "${inputs.skill-nixomatic}/nixomatic";
+      };
+
       thisCfg = config.programs.github-copilot-cli;
     in
     {
@@ -33,6 +44,7 @@
         # https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-config-dir-reference
         settings = {
           allowedUrls = [
+            "https://id-unibe-ch.cachix.org"
             "https://learn.microsoft.com"
             "https://code.visualstudio.com"
             "https://registry.terraform.io"
@@ -61,6 +73,10 @@
           theme = "github";
         };
 
+        context = ./copilot/instructions.md;
+        agents = ./copilot/agents;
+        skills = externalSkills // localSkills;
+
         mcpServers = {
           atlassian-mcp-server = {
             command = "npx";
@@ -84,7 +100,7 @@
           };
           terraform-mcp-server = {
             type = "local";
-            command = "terraform-mcp-server";
+            command = lib.getExe pkgs.terraform-mcp-server;
             tools = [ "*" ];
           };
         };
