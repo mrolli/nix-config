@@ -67,11 +67,13 @@
           coding.mini-surround.enable = true;
           lang = {
             git.enable = true;
+            json.enable = true;
             markdown = {
               enable = true;
               installDependencies = false;
             };
             terraform.enable = true;
+            toml.enable = true;
             yaml.enable = true;
           };
 
