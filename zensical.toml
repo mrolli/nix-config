@@ -87,25 +87,19 @@ admonition = {}
 attr_list = {}
 def_list = {}
 footnotes = {}
-pymdownx = {
-  details = {}
-  emoji = {
-    emoji_index = "zensical.extensions.emoji.twemoji"
-    emoji_generator = "zensical.extensions.emoji.to_svg"
-  keys = {}
-  pymdownx.superfences.custom_fences = [
+pymdownx.details = {}
+pymdownx.emoji.emoji_index = "zensical.extensions.emoji.twemoji"
+pymdownx.emoji.emoji_generator = "zensical.extensions.emoji.to_svg"
+pymdownx.keys = {}
+pymdownx.superfences = {
+  custom_fences = [
     { name = "mermaid", class = "mermaid", format = "pymdownx.superfences.fence_code_format" },
   ]
-  superfences = {
-    custom_fences = [
-      { name = "mermaid", class = "mermaid", format = "pymdownx.superfences.fence_code_format" },
-    ]
-  }
-  tabbed = { alternate_style = true }
-  tasklist = { custom_checkbox = true }
-  tilde = {}
-  toc = { toc_depth = 3 }
 }
+pymdownx.tabbed = { alternate_style = true }
+pymdownx.tasklist = { custom_checkbox = true }
+pymdownx.tilde = {}
+toc = { toc_depth = 3 }
 
 # Social links
 [[project.extra.social]]
