@@ -26,6 +26,10 @@
             source = lib.mkForce (config.lib.file.mkOutOfStoreSymlink "${spellDir}/${baseNameOf name}");
           })
         // {
+          "nvim/.markdownlint.yaml".text = ''
+            MD013: false
+          '';
+
           # lazyvim-nix v16.0.1 installs nvim-treesitter 5cb0114 queries, whose diff
           # highlights need the `change` node, but builds tree-sitter-diff 2520c3f
           # from an older parser manifest. Shadow it with the matching revision via

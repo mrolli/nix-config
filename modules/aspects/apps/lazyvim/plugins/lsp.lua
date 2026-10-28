@@ -27,7 +27,17 @@ return {
     opts = {
       linters = {
         ["markdownlint-cli2"] = {
-          prepend_args = { "--config", vim.env.HOME .. "/.config/nvim/.markdownlint.yaml", "--" },
+          prepend_args = { "--config", vim.fn.stdpath("config") .. "/.markdownlint.yaml" },
+        },
+      },
+    },
+  },
+  {
+    "stevearc/conform.nvim",
+    opts = {
+      formatters = {
+        ["markdownlint-cli2"] = {
+          prepend_args = { "--config", vim.fn.stdpath("config") .. "/.markdownlint.yaml" },
         },
       },
     },
