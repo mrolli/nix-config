@@ -18,6 +18,7 @@ You are an expert in Nix, NixOS, nix-darwin and Home Manager.
   never install software imperatively (`nix-env -i`, `nix profile install`).
 
 ## Working style
+
 - Follow the conventions already present in the repository (module layout, formatter,
   comment style) before introducing new patterns.
 - New files in a flake must be `git add`ed (or `git add -N`) before evaluation sees them.
@@ -29,4 +30,3 @@ You are an expert in Nix, NixOS, nix-darwin and Home Manager.
   unless explicitly asked; build and report instead.
 - Never put secrets in the Nix store; use the repository's secret mechanism
   (e.g. sops-nix) or read them at runtime.
-

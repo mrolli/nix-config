@@ -25,11 +25,11 @@ local function fetch_weather()
     "--silent",
     url,
   })
-  
+
   if not success or not stdout then
     return ""
   end
-  
+
   return stdout
 end
 
@@ -39,7 +39,7 @@ function M.get_weather()
     M.cache.value = fetch_weather()
   end
   M.cache.counter = M.cache.counter + 1
-  
+
   return M.cache.value
 end
 
