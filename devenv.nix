@@ -10,12 +10,35 @@
     lua.enable = true;
     shell.enable = true;
     nix.enable = true;
+    python = {
+      enable = true;
+      venv.enable = true;
+      venv.requirements = ''
+        zensical
+      '';
+    };
   };
 
   delta.enable = true;
 
   git-hooks.hooks = {
-    shellcheck.enable = true;
+    check-added-large-files.enable = true;
+    check-executables-have-shebangs.enable = true;
+    check-merge-conflicts.enable = true;
+    check-yaml.enable = true;
+    detect-private-keys.enable = true;
     nixfmt.enable = true;
+    markdownlint.enable = true;
+    mixed-line-endings = {
+      enable = true;
+      args = [
+        "--fix=no"
+      ];
+    };
+    shellcheck.enable = true;
+    trim-trailing-whitespace = {
+      enable = true;
+      args = [ "--markdown-linebreak-ext=md" ];
+    };
   };
 }

@@ -1,0 +1,113 @@
+[project]
+site_name = "My Nix Cconfig"
+site_url = "https://michael.rollis.ch/nix-config"
+site_description = """
+Personal Nix configuraion repo - successor of my dotfiles."""
+site_author = "Michael Rolli"
+copyright = 'Copyright &copy; 2026 Michael Rolli<br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.'
+
+# Repository
+repo_name = "mrolli/nix-config"
+repo_url = "https://github.com/mrolli/nix-config"
+edit_uri = "edit/main/docs"
+
+# Extra CSS
+extra_css = ["stylesheets/extra.css"]
+
+# Navigation
+nav = [
+  { "Home" = "index.md" },
+]
+
+# Theme configuration
+[project.theme]
+variant = "classic"
+language = "en"
+features = [
+  "announce.dismiss",
+  "content.action.view",
+  "content.code.annotate",
+  "content.code.copy",
+  "content.code.select",
+  "content.footnote.tooltips",
+  "content.tabs.link",
+  "content.tooltips",
+  "navigation.expand",
+  "navigation.footer",
+  "navigation.indexes",
+  "navigation.instant",
+  "navigation.instant.prefetch",
+  "navigation.path",
+  "navigation.sections",
+  "navigation.tabs",
+  "navigation.tabs.sticky",
+  "navigation.top",
+  "navigation.tracking",
+  "search.highlight",
+  "search.suggest",
+  "toc.follow",
+]
+
+[project.theme.icon]
+logo = "fontawesome/solid/chalkboard-user"
+repo = "fontawesome/brands/github"
+
+# Palette toggle for automatic mode
+[[project.theme.palette]]
+media = "(prefers-color-scheme)"
+toggle.icon = "lucide/sun-moon"
+toggle.name = "Switch to light mode"
+
+# Palette toggle for light mode
+[[project.theme.palette]]
+media = "(prefers-color-scheme: light)"
+scheme = "modern"
+primary = "orange"
+accent = "orange"
+toggle.icon = "material/weather-night"
+toggle.name = "Switch to dark mode"
+
+# Palette toggle for dark mode
+[[project.theme.palette]]
+media = "(prefers-color-scheme: dark)"
+scheme = "slate"
+primary = "amber"
+accent = "amber"
+toggle.icon = "material/weather-sunny"
+toggle.name = "Switch to light mode"
+
+# Plugins
+[project.plugins.git-revision-date-localized]
+[project.plugins.glightbox]
+
+# Markdown extensions
+[project.markdown_extensions]
+abbr = {}
+admonition = {}
+attr_list = {}
+def_list = {}
+footnotes = {}
+pymdownx = {
+  details = {}
+  emoji = {
+    emoji_index = "zensical.extensions.emoji.twemoji"
+    emoji_generator = "zensical.extensions.emoji.to_svg"
+  keys = {}
+  pymdownx.superfences.custom_fences = [
+    { name = "mermaid", class = "mermaid", format = "pymdownx.superfences.fence_code_format" },
+  ]
+  superfences = {
+    custom_fences = [
+      { name = "mermaid", class = "mermaid", format = "pymdownx.superfences.fence_code_format" },
+    ]
+  }
+  tabbed = { alternate_style = true }
+  tasklist = { custom_checkbox = true }
+  tilde = {}
+  toc = { toc_depth = 3 }
+}
+
+# Social links
+[[project.extra.social]]
+icon = "fontawesome/brands/github-alt"
+link = "https://github.com/mrolli/"
