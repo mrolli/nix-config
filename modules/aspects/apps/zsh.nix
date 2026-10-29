@@ -1,5 +1,19 @@
-# Install and configure zsh
-# https://nix-community.github.io/home-manager/options/home-manager/programs/zsh.html
+# @doc id=zsh target=docs/apps/zsh.md
+# Install and configure zsh using [Home Manager]
+# [Home Manager]: <https://nix-community.github.io/home-manager/options/home-manager/programs/zsh.html>
+#
+# ## Usage
+#
+# ### Aliases
+#
+# The ZSH aspect defines different shell aliases per operating systems.
+#
+# ### Vi mode
+#
+# zsh-vi-mode provides Vim-style command-line editing. Press `Esc` to enter normal mode.
+#
+# zsh-fzf-tab provides fuzyy tab completion
+# @enddoc
 { ... }:
 let
   systemModule = { ... }: {
