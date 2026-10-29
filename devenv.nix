@@ -22,6 +22,13 @@
   delta.enable = true;
 
   git-hooks.hooks = {
+    aspect-docs = {
+      enable = true;
+      name = "Check generated aspect documentation";
+      entry = "python scripts/generate-aspect-docs.py";
+      files = "\\.(nix|md)$";
+      pass_filenames = false;
+    };
     check-added-large-files.enable = true;
     check-executables-have-shebangs.enable = true;
     check-merge-conflicts.enable = true;
