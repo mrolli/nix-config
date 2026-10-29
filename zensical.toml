@@ -91,11 +91,9 @@ pymdownx.details = {}
 pymdownx.emoji.emoji_index = "zensical.extensions.emoji.twemoji"
 pymdownx.emoji.emoji_generator = "zensical.extensions.emoji.to_svg"
 pymdownx.keys = {}
-pymdownx.superfences = {
-  custom_fences = [
-    { name = "mermaid", class = "mermaid", format = "pymdownx.superfences.fence_code_format" },
-  ]
-}
+pymdownx.superfences.custom_fences = [
+  { name = "mermaid", class = "mermaid", format = "pymdownx.superfences.fence_code_format" },
+]
 pymdownx.tabbed = { alternate_style = true }
 pymdownx.tasklist = { custom_checkbox = true }
 pymdownx.tilde = {}

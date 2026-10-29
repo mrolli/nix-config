@@ -19,5 +19,5 @@ zsh-fzf-tab provides fuzyy tab completion
 <!-- END GENERATED: zsh -->
 
 <!-- GENERATED SOURCE: zsh -->
-[Source: `modules/aspects/apps/zsh.nix`](../../modules/aspects/apps/zsh.nix)
+[Source: `modules/aspects/apps/zsh.nix`](https://github.com/mrolli/nix-config/blob/HEAD/modules/aspects/apps/zsh.nix)
 <!-- END GENERATED SOURCE: zsh -->

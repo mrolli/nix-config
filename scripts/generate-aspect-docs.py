@@ -4,10 +4,10 @@
 from __future__ import annotations
 
 import argparse
-import os
 import re
 import shlex
 import sys
+import tomllib
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -82,9 +82,23 @@ def parse_sources(root: Path) -> list[Document]:
     return documents
 
 
-def rendered(document: Document, root: Path) -> str:
+def load_repo_url(root: Path) -> str:
+    config = root / "zensical.toml"
+    try:
+        with config.open("rb") as handle:
+            project = tomllib.load(handle).get("project", {})
+    except FileNotFoundError:
+        project = {}
+    repo_url = project.get("repo_url")
+    if not isinstance(repo_url, str) or not repo_url.strip():
+        raise ValueError("repo_url is not set in zensical.toml")
+    return repo_url.strip().rstrip("/")
+
+
+def rendered(document: Document, root: Path, repo_url: str) -> str:
     source = document.source.relative_to(root)
-    source_link = Path(os.path.relpath(document.source, document.target.parent)).as_posix()
+    # GitHub resolves HEAD to the repository's default branch.
+    source_link = f"{repo_url}/blob/HEAD/{source.as_posix()}"
     notice = f"<!-- Generated from {source}; edit the marked Nix block instead. -->"
     return (
         f"<!-- BEGIN GENERATED: {document.identifier} -->\n"
@@ -96,12 +110,12 @@ def rendered(document: Document, root: Path) -> str:
     )
 
 
-def update_target(document: Document, root: Path) -> bool:
+def update_target(document: Document, root: Path, repo_url: str) -> bool:
     if not document.target.exists():
         raise FileNotFoundError(f"generated target does not exist: {document.target.relative_to(root)}")
 
     original = document.target.read_text()
-    block = rendered(document, root)
+    block = rendered(document, root, repo_url)
     pattern = re.compile(
         rf"<!-- BEGIN GENERATED: {re.escape(document.identifier)} -->\n.*?"
         rf"<!-- END GENERATED: {re.escape(document.identifier)} -->\n?"
@@ -156,13 +170,14 @@ def main() -> int:
 
     try:
         documents = parse_sources(root)
+        repo_url = load_repo_url(root) if documents else ""
         active_ids = {document.identifier for document in documents}
         changed = 0
         changed += cleanup_stale_blocks(root, active_ids, args.check)
         for document in documents:
             if args.check:
                 original = document.target.read_text()
-                block = rendered(document, root)
+                block = rendered(document, root, repo_url)
                 pattern = re.compile(
                     rf"<!-- BEGIN GENERATED: {re.escape(document.identifier)} -->\n.*?"
                     rf"<!-- END GENERATED: {re.escape(document.identifier)} -->\n?"
@@ -181,7 +196,7 @@ def main() -> int:
                         f"stale generated block: {document.target.relative_to(root)} ({document.identifier})"
                     )
             else:
-                changed += update_target(document, root)
+                changed += update_target(document, root, repo_url)
     except (OSError, ValueError) as error:
         print(f"generate-aspect-docs: error: {error}", file=sys.stderr)
         return 1

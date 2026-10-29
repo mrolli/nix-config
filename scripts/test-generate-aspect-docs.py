@@ -17,6 +17,8 @@ MODULE = importlib.util.module_from_spec(SPEC)
 sys.modules[SPEC.name] = MODULE
 SPEC.loader.exec_module(MODULE)
 
+REPO_URL = "https://github.com/example/repo"
+
 
 class GeneratorTests(unittest.TestCase):
     def test_updates_only_managed_block(self) -> None:
@@ -42,14 +44,15 @@ class GeneratorTests(unittest.TestCase):
             )
 
             documents = MODULE.parse_sources(root)
-            self.assertTrue(MODULE.update_target(documents[0], root))
+            self.assertTrue(MODULE.update_target(documents[0], root, REPO_URL))
             result = target.read_text()
             self.assertIn("# Curated title", result)
             self.assertIn("## Generated", result)
             self.assertIn("Curated footer.", result)
             self.assertNotIn("old text", result)
             self.assertIn(
-                "[Source: `modules/example.nix`](../modules/example.nix)",
+                "[Source: `modules/example.nix`]"
+                "(https://github.com/example/repo/blob/HEAD/modules/example.nix)",
                 result,
             )
 
@@ -67,8 +70,25 @@ class GeneratorTests(unittest.TestCase):
             target.write_text("# Existing\n")
             document = MODULE.parse_sources(root)[0]
 
-            self.assertTrue(MODULE.update_target(document, root))
+            self.assertTrue(MODULE.update_target(document, root, REPO_URL))
             self.assertIn("BEGIN GENERATED: example", target.read_text())
+
+    def test_repo_url_is_read_from_zensical_toml(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "zensical.toml").write_text(
+                '[project]\nrepo_url = "https://github.com/example/repo/"\n'
+            )
+            self.assertEqual(MODULE.load_repo_url(root), REPO_URL)
+
+    def test_missing_repo_url_fails(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            with self.assertRaisesRegex(ValueError, "repo_url is not set in zensical.toml"):
+                MODULE.load_repo_url(root)
+            (root / "zensical.toml").write_text('[project]\nsite_name = "x"\n')
+            with self.assertRaisesRegex(ValueError, "repo_url is not set in zensical.toml"):
+                MODULE.load_repo_url(root)
 
     def test_stale_block_is_removed(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
