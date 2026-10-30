@@ -84,6 +84,7 @@ let
           # Alias vi to nvim as Homebrew manages vi to be a symlink to
           # vim as long vim is still installed
           vi = "$EDITOR";
+          vim = "$EDITOR";
 
           # Use eza instead of ls if available
           ls = "eza --icons --group-directories-first";
