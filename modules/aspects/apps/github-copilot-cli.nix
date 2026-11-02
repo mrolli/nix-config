@@ -15,7 +15,7 @@
     }:
     let
       # Every subdirectory of ./copilot/skills is a local skill.
-      localSkills = lib.mapAttrs (name: _: "copilot/skills/${name}") (
+      localSkills = lib.mapAttrs (name: _: ./copilot/skills + "/${name}") (
         lib.filterAttrs (_: type: type == "directory") (builtins.readDir (./copilot/skills))
       );
 

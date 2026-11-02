@@ -14,13 +14,8 @@
       ...
     }:
     let
-      # Every subdirectory of ./copilot/agents is a local agent.
-      localAgents = lib.mapAttrs (name: _: "copilot/agents/${name}") (
-        lib.filterAttrs (_: type: type == "directory") (builtins.readDir (./copilot/agents))
-      );
-
       # Every subdirectory of ./copilot/skills is a local skill.
-      localSkills = lib.mapAttrs (name: _: "copilot/skills/${name}") (
+      localSkills = lib.mapAttrs (name: _: ./copilot/skills + "/${name}") (
         lib.filterAttrs (_: type: type == "directory") (builtins.readDir (./copilot/skills))
       );
 
@@ -40,7 +35,7 @@
         configDir = "${config.xdg.configHome}/claude";
 
         context = ./copilot/instructions.md;
-        agents = localAgents;
+        agentsDir = ./copilot/agents;
         skills = externalSkills // localSkills;
       };
     };
