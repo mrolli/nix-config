@@ -17,6 +17,8 @@ extra_css = ["stylesheets/extra.css"]
 # Navigation
 nav = [
   { "Home" = "index.md" },
+  { "Onboarding" = "onboarding.md" },
+  { "Secrets management" = "secrets-management.md" },
 ]
 
 # Theme configuration

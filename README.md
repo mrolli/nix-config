@@ -197,7 +197,9 @@ Primary repository validation. It evaluates the Den-generated flake outputs.
 
 ## Switching Darwin hosts/Apply latest config
 
-For the initial activation, when `darwin-rebuild` is not yet installed, use:
+For the initial activation on a new or reinstalled Mac, follow the
+step-by-step [onboarding guide](docs/onboarding.md). In short, when
+`darwin-rebuild` is not yet installed, use:
 
 ```bash
 sudo nix run nix-darwin -- switch --flake .#HOSTNAME

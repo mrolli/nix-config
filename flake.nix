@@ -29,6 +29,10 @@
     lazyvim.url = "github:pfassina/lazyvim-nix";
     lazyvim.inputs.nixpkgs.follows = "nixpkgs-unstable";
 
+    # Decrypts sops secrets during activation; see docs/secrets-management.md.
+    sops-nix.url = "github:Mic92/sops-nix";
+    sops-nix.inputs.nixpkgs.follows = "nixpkgs";
+
     # Third-party Copilot CLI skills, pinned as plain source trees and linked
     # into ~/.config/copilot/skills by modules/aspects/apps/github-copilot-cli.nix.
     skill-nixos-management = {

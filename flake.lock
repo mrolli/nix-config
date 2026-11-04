@@ -405,7 +405,8 @@
         "nixpkgs-unstable": "nixpkgs-unstable",
         "skill-nixomatic": "skill-nixomatic",
         "skill-nixos-best-practices": "skill-nixos-best-practices",
-        "skill-nixos-management": "skill-nixos-management"
+        "skill-nixos-management": "skill-nixos-management",
+        "sops-nix": "sops-nix"
       }
     },
     "skill-nixomatic": {
@@ -453,6 +454,26 @@
       "original": {
         "owner": "michalzubkowicz",
         "repo": "nixos-management-skill",
+        "type": "github"
+      }
+    },
+    "sops-nix": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1793657466,
+        "narHash": "sha256-GoOvpdsjO5hqZuO6T6ok9u6sJEjO0iPli2zRr9oNUNw=",
+        "owner": "Mic92",
+        "repo": "sops-nix",
+        "rev": "b18e01ce148eb3efff5de2f2d3181ca53b2b2a54",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Mic92",
+        "repo": "sops-nix",
         "type": "github"
       }
     },

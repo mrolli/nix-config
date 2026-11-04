@@ -1,0 +1,14 @@
+# sops creation rules: which age recipients each secrets file is encrypted for.
+# See docs/secrets-management.md before changing keys or rules.
+keys:
+  # Recovery key: private key stored only in 1Password ("sops recovery age key").
+  - &recovery age1wckx8re2n0dfd7qtt4vfpcjtj4q67fcuv6363hqdnp9hn9xwvv6qw08rkw
+  # Host keys: private key in ~/.config/sops/age/keys.txt on that host.
+  - &rivendell age199p8luy9c3gzv8xxd3rmu0u0u4rz8gpz372jdf30xv6mn7mhkchswv4vg9
+
+creation_rules:
+  - path_regex: ^secrets/[^/]+\.yaml$
+    key_groups:
+      - age:
+          - *recovery
+          - *rivendell

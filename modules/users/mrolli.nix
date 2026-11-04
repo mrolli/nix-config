@@ -13,6 +13,7 @@
 
       den.aspects.asciinema
       den.aspects.bat
+      den.aspects.cachix
       den.aspects.claude-code
       den.aspects.devenv
       den.aspects.direnv
@@ -27,6 +28,7 @@
       den.aspects.mpv
       den.aspects.neovim
       den.aspects.personal-scripts
+      den.aspects.secrets
       den.aspects.starship
       den.aspects.wezterm
       den.aspects.yt-dlp
