@@ -27,8 +27,10 @@
       den.aspects.glow
       den.aspects.mpv
       den.aspects.neovim
+      den.aspects.onepassword
       den.aspects.personal-scripts
       den.aspects.secrets
+      den.aspects.ssh
       den.aspects.starship
       den.aspects.wezterm
       den.aspects.yt-dlp

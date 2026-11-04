@@ -12,7 +12,6 @@
           "id-unibe-ch/tap/bildschirmUniversum"
         ];
         casks = [
-          "1password"
           "ghostty"
           "iina"
           "windows-app"

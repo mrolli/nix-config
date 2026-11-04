@@ -7,6 +7,12 @@ keys:
   - &rivendell age199p8luy9c3gzv8xxd3rmu0u0u4rz8gpz372jdf30xv6mn7mhkchswv4vg9
 
 creation_rules:
+  # Encrypted ~/.ssh host entries (plain ssh_config syntax, binary file).
+  - path_regex: ^secrets/ssh_config$
+    key_groups:
+      - age:
+          - *recovery
+          - *rivendell
   - path_regex: ^secrets/[^/]+\.yaml$
     key_groups:
       - age:

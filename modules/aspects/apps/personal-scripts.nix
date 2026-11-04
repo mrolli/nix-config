@@ -1,6 +1,9 @@
 # Personal scripts managed and deployed by this configuration.
-{ ... }:
+# `op` for the LEGO scripts comes from the included onepassword aspect.
+{ den, ... }:
 {
+  den.aspects.personal-scripts.includes = [ den.aspects.onepassword ];
+
   den.aspects.personal-scripts.homeManager =
     {
       config,
@@ -28,7 +31,6 @@
       # LEGO related CLI scripts
       {
         home.packages = with pkgs; [
-          _1password-cli
           curl
           jq
         ];
