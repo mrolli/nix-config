@@ -50,6 +50,17 @@ in
         "*.unibe.ch".IdentityFile = "~/.ssh/id-login.pub";
       };
 
+      # Git commit signing: private identity by default; git-use-unibe-identity
+      # switches a repository to the work identity and id-signing key.
+      xdg.configFile."git/allowed_signers".text = ''
+        michael@rollis.ch namespaces="git" ${keys.private-signing}
+        michael.rolli@unibe.ch namespaces="git" ${keys.id-signing}
+      '';
+      programs.git.settings = {
+        user.signingkey = "${config.home.homeDirectory}/.ssh/private-signing.pub";
+        gpg.ssh.allowedSignersFile = "${config.xdg.configHome}/git/allowed_signers";
+      };
+
       # Host entries (names, users, addresses) in plain ssh_config syntax.
       sops.secrets.ssh-hosts = {
         sopsFile = ../../../secrets/ssh_config;

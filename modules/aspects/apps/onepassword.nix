@@ -21,6 +21,13 @@
             ''"~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"''
           else
             "~/.1password/agent.sock";
+
+        # Git SSH signing through the 1Password app (Touch ID per signature).
+        programs.git.settings.gpg.ssh.program =
+          if pkgs.stdenv.hostPlatform.isDarwin then
+            "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
+          else
+            "/opt/1Password/op-ssh-sign";
       };
   };
 }

@@ -17,7 +17,7 @@ fi
 
 name="Michael Rolli"
 email="michael.rolli@unibe.ch"
-signing_key="EA75816558876EAC"
+signing_key="$HOME/.ssh/id-signing.pub"
 
 if ! git config --local user.name "$name"; then
   >&2 echo "Failed to set the local Git user name."

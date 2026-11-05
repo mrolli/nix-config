@@ -27,8 +27,9 @@
         user = {
           name = "Michael Rolli";
           email = "michael@rollis.ch";
-          signingkey = "4DFE5E3BF4982CAE";
         };
+        # Sign with SSH keys; the key and allowed signers are set per user.
+        gpg.format = "ssh";
         alias = {
           aliases = "config --get-regexp alias";
           branches = "branch --all -vv";
