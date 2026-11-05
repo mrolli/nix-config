@@ -8,7 +8,6 @@ let
       environment.systemPackages = with pkgs; [
         cargo
         eza
-        gnupg
         jq
         yq-go
       ];

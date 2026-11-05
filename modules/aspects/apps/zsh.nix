@@ -203,11 +203,9 @@ let
 
           ''
             # Values that must be computed at shell start (not static Nix
-            # values): GPG_TTY needs the current TTY, LESS_TERMCAP_md needs
-            # tput's terminfo lookup, and macOS pre-sets LSCOLORS which would
-            # otherwise shadow LS_COLORS.
+            # values): LESS_TERMCAP_md needs tput's terminfo lookup, and macOS
+            # pre-sets LSCOLORS which would otherwise shadow LS_COLORS.
             unset LSCOLORS
-            export GPG_TTY=$(tty)
             export LESS_TERMCAP_md="$(tput bold; tput setaf 136)"
 
             # Search history with Up/Down based on what's already typed on
