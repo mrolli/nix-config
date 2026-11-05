@@ -16,7 +16,7 @@ The aspect includes 1Password because some scripts call `op`.
 
 See [Home Manager file deployment options] for the `home.file` mechanism.
 
-[Home Manager file deployment options]: <https://nix-community.github.io/home-manager/options.xhtml#opt-home.file>
+[Home Manager file deployment options]: <https://nix-community.github.io/home-manager/options/home-manager/home.html#opt-home.file>
 <!-- END GENERATED: personal-scripts -->
 
 <!-- GENERATED SOURCE: personal-scripts -->

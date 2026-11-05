@@ -13,7 +13,7 @@
 #
 # See [Home Manager file deployment options] for the `home.file` mechanism.
 #
-# [Home Manager file deployment options]: <https://nix-community.github.io/home-manager/options.xhtml#opt-home.file>
+# [Home Manager file deployment options]: <https://nix-community.github.io/home-manager/options/home-manager/home.html#opt-home.file>
 # @enddoc
 # Personal scripts managed and deployed by this configuration.
 # `op` for the LEGO scripts comes from the included onepassword aspect.
