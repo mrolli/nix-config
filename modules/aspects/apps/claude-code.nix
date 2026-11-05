@@ -1,3 +1,20 @@
+# @doc id=claude-code target=docs/apps/claude-code.md
+# Configure Claude Code with shared repository instructions, agents, and skills.
+#
+# The package comes from nixpkgs-unstable. Home Manager places its configuration
+# under XDG config. Instructions, agents, and locally discovered skills reuse
+# the tracked files under `modules/aspects/apps/copilot/`; external skills are
+# pinned flake inputs, so both coding assistants share the same guidance.
+#
+# Authentication and user-specific Claude settings remain managed by Claude
+# Code itself, not by this Nix aspect.
+#
+# See the [Home Manager Claude Code options] and [Claude Code documentation]
+# for configuration details.
+#
+# [Home Manager Claude Code options]: <https://nix-community.github.io/home-manager/options.xhtml#opt-programs.claude-code.enable>
+# [Claude Code documentation]: <https://docs.anthropic.com/en/docs/claude-code/overview>
+# @enddoc
 # Install and configure claude-code using Home Manager
 # https://nix-community.github.io/home-manager/options/home-manager/programs/claud-code.html
 # https://github.com/anthropics/claude-code

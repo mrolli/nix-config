@@ -142,13 +142,16 @@ Check:
 
 ## 7. Sign in to apps and tools
 
-Some logins are not managed by this repository:
+The first switch installs the 1Password app and CLI. Sign in to the app, enable
+**Settings → Developer → Integrate with 1Password CLI** and **SSH Agent**, then
+confirm that the configured keys are available. Follow the [1Password aspect
+guide](apps/onepassword.md) and [SSH identity guide](users/mrolli-ssh.md).
 
-1. Open 1Password, sign in, and enable *Settings → Developer → Integrate with
-   1Password CLI* (and the SSH agent once it is configured).
-2. Authenticate CLI tools that keep their own tokens, e.g. `gh auth login`
+Some other logins are not managed by this repository:
+
+1. Authenticate CLI tools that keep their own tokens, e.g. `gh auth login`
    and `az login`.
-3. Grant permissions macOS asks for (Full Disk Access, Accessibility) to the
+2. Grant permissions macOS asks for (Full Disk Access, Accessibility) to the
    terminal and the apps that need them.
 
 ## 8. Day-to-day switching

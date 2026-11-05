@@ -1,3 +1,19 @@
+# @doc id=neovim target=docs/apps/neovim.md
+# Configure LazyVim through the `lazyvim-nix` Home Manager module.
+#
+# The editable LazyVim configuration is in `modules/aspects/apps/lazyvim/`.
+# Spell additions are symlinked out of the Nix store to the live checkout so
+# `zg` can write them. Add words there and commit the `.add` file.
+#
+# The aspect also overrides the `diff` Tree-sitter parser: the pinned
+# `lazyvim-nix` queries require a parser revision newer than its current
+# manifest. Remove the override when the upstream manifest is coherent.
+# See the [Home Manager LazyVim module] and [LazyVim] documentation for
+# configuring the editor.
+#
+# [Home Manager LazyVim module]: <https://github.com/pfassina/lazyvim-nix>
+# [LazyVim]: <https://www.lazyvim.org/>
+# @enddoc
 { inputs, ... }:
 {
   den.aspects.neovim.homeManager =

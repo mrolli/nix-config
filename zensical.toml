@@ -19,6 +19,24 @@ nav = [
   { "Home" = "index.md" },
   { "Onboarding" = "onboarding.md" },
   { "Secrets management" = "secrets-management.md" },
+  { "Applications" = [
+    { "1Password" = "apps/onepassword.md" },
+    { "Cachix" = "apps/cachix.md" },
+    { "Claude Code" = "apps/claude-code.md" },
+    { "Git" = "apps/git.md" },
+    { "GitHub Copilot CLI" = "apps/github-copilot-cli.md" },
+    { "Neovim" = "apps/neovim.md" },
+    { "OpenSSH" = "apps/ssh.md" },
+    { "Personal scripts" = "apps/personal-scripts.md" },
+    { "Zsh" = "apps/zsh.md" },
+  ] },
+  { "Core" = [
+    { "Darwin base" = "core/darwin-base.md" },
+    { "Secrets aspect" = "core/secrets.md" },
+  ] },
+  { "User guides" = [
+    { "mrolli's SSH identities" = "users/mrolli-ssh.md" },
+  ] },
 ]
 
 # Theme configuration

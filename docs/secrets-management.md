@@ -12,6 +12,63 @@ Some tools keep their own login (`gh auth login`, `az login`, OAuth-based MCP
 servers). Those tokens stay in the tool's own store or the macOS Keychain
 and are not managed here.
 
+## 1Password
+
+Use 1Password for interactive secrets and SSH keys. The `onepassword` aspect
+installs the macOS app as a Homebrew cask and the CLI from nixpkgs-unstable.
+After switching, sign in to the app and enable **Settings → Developer →
+Integrate with 1Password CLI** and **SSH Agent**. See the [1Password aspect
+guide](apps/onepassword.md) and [1Password's SSH agent documentation].
+
+### SSH keys
+
+There are separate login and signing keys for the private and work identities.
+Private key material stays in 1Password; the repository contains only public
+keys.
+
+| Identity | Purpose | 1Password item | Vault | Public key path |
+| --- | --- | --- | --- | --- |
+| Private | SSH login | `ssh-login-key` | `Private` | `~/.ssh/private-login.pub` |
+| Private | Git signing | `ssh-signing-key` | `Private` | `~/.ssh/private-signing.pub` |
+| Work | SSH login | `ssh-login-key` | `ID` | `~/.ssh/id-login.pub` |
+| Work | Git signing | `ssh-signing-key` | `ID` | `~/.ssh/id-signing.pub` |
+
+The user aspect generates `~/.config/1Password/ssh/agent.toml` to allowlist
+these four items. Host-specific SSH entries are encrypted in
+`secrets/ssh_config` and deployed to `~/.ssh/config.d/hosts`. Edit them with
+`sops secrets/ssh_config`; use `IdentityFile ~/.ssh/<key>.pub` to select the
+agent key for a host. Register login public keys with the relevant server or
+hosting account before selecting them.
+
+See the [OpenSSH aspect guide](apps/ssh.md) and [SSH identity guide](users/mrolli-ssh.md)
+for configuration and troubleshooting.
+
+### Git signing
+
+The default Git identity uses the private signing key. Run
+`git-use-unibe-identity` inside a work repository to select the work identity
+and signing key. The generated `~/.config/git/allowed_signers` file lets Git
+verify signatures locally. Register each signing key with its hosting account
+as a **Signing** key; authentication keys and signing keys are distinct.
+
+Check a local signature with:
+
+```sh
+git log --show-signature -1
+```
+
+See the [Git aspect guide](apps/git.md) for how signing is wired.
+
+### Rotate a key
+
+Create a replacement in the same 1Password vault, update its public key in
+`modules/users/mrolli/ssh.nix`, and update the 1Password item allowlist if its
+item name changes. For a login key, replace the public key on every server or
+hosting account and update the encrypted host entries. For a signing key,
+update the hosting provider's signing-key registration. Switch, verify login
+and signatures, then revoke the old public key. If a private key was exposed,
+revoke it immediately and rotate it at every place it was authorized.
+
 ## Where does a secret go?
 
 | Question | sops | 1Password |
@@ -77,6 +134,7 @@ macOS. Set `SOPS_AGE_KEY_FILE` to override.
 
 [sops-nix]: <https://github.com/Mic92/sops-nix>
 [1Password]: <https://developer.1password.com/docs/cli/>
+[1Password's SSH agent documentation]: <https://developer.1password.com/docs/ssh/agent/>
 
 ### Wiring in Nix
 
@@ -136,6 +194,7 @@ The file is read-only and owned by sops-nix: tools can no longer write to it
 | Secret | Consumer | Delivered as |
 | --- | --- | --- |
 | `cachix/authToken` | `cachix` aspect | `~/.config/cachix/cachix.dhall` (template) |
+| SSH host config (`secrets/ssh_config`) | `mrolli` user aspect | `~/.ssh/config.d/hosts` (binary file) |
 
 Keep this table in sync when adding or removing secrets.
 
