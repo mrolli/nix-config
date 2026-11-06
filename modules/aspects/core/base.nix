@@ -9,6 +9,7 @@ let
         cargo
         eza
         jq
+        ripgrep
         yq-go
       ];
     };
