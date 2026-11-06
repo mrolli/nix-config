@@ -5,6 +5,7 @@ keys:
   - &recovery age1wckx8re2n0dfd7qtt4vfpcjtj4q67fcuv6363hqdnp9hn9xwvv6qw08rkw
   # Host keys: private key in ~/.config/sops/age/keys.txt on that host.
   - &rivendell age199p8luy9c3gzv8xxd3rmu0u0u4rz8gpz372jdf30xv6mn7mhkchswv4vg9
+  - &galadriel age17mep62r06p6yc0umjwn5wfms6m3wlj2ns2f6ueqg3vwum0gpdp9s68z96t
 
 creation_rules:
   # Encrypted ~/.ssh host entries (plain ssh_config syntax, binary file).
@@ -13,8 +14,10 @@ creation_rules:
       - age:
           - *recovery
           - *rivendell
+          - *galadriel
   - path_regex: ^secrets/[^/]+\.yaml$
     key_groups:
       - age:
           - *recovery
           - *rivendell
+          - *galadriel
