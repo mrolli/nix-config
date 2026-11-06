@@ -4,7 +4,7 @@
 #
 # Private keys remain in 1Password. The four public keys are declared here and
 # linked into `~/.ssh`; login and signing keys are separate for the private and
-# work identities. `agent.toml` explicitly selects the four 1Password items.
+# work identities. `agent.toml` selects the four items by their unique titles.
 #
 # Host-specific names, users, addresses, and `IdentityFile` choices are kept in
 # the encrypted `secrets/ssh_config`, delivered as
@@ -28,8 +28,8 @@
 # mrolli's SSH identities (keys live in 1Password) and encrypted host entries.
 # See docs/secrets-management.md.
 let
-  # Public keys of the 1Password items `ssh-login-key` / `ssh-signing-key`
-  # in the vaults Private (private identity) and ID (work identity).
+  # Public keys of `private-ssh-{login,signing}-key` in Private and
+  # `id-ssh-{login,signing}-key` in ID.
   keys = {
     private-login = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGQ7P1VLtKlxDKWKcFIn1GnuVjShgY+ERLx/K59p/0HZ";
     private-signing = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIH6LuUhz+PsLGapSBLB3hwvDE0VAQZt0a5MxMzMWDrko";
@@ -47,23 +47,21 @@ in
         name: key: lib.nameValuePair ".ssh/${name}.pub" { text = "${key} ${name}\n"; }
       ) keys;
 
-      # Keys the 1Password agent may offer, in this order.
+      # The default vault is "Private" or "Privat" depending on locale;
+      # select unique item titles without a locale-dependent vault name.
+      # Order: private login, work login, private signing, work signing.
       xdg.configFile."1Password/ssh/agent.toml".text = ''
         [[ssh-keys]]
-        item = "ssh-login-key"
-        vault = "Private"
+        item = "private-ssh-login-key"
 
         [[ssh-keys]]
-        item = "ssh-login-key"
-        vault = "ID"
+        item = "id-ssh-login-key"
 
         [[ssh-keys]]
-        item = "ssh-signing-key"
-        vault = "Private"
+        item = "private-ssh-signing-key"
 
         [[ssh-keys]]
-        item = "ssh-signing-key"
-        vault = "ID"
+        item = "id-ssh-signing-key"
       '';
 
       # Identity defaults. IdentityFile accumulates over all matching blocks, so

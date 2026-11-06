@@ -28,13 +28,15 @@ keys.
 
 | Identity | Purpose | 1Password item | Vault | Public key path |
 | --- | --- | --- | --- | --- |
-| Private | SSH login | `ssh-login-key` | `Private` | `~/.ssh/private-login.pub` |
-| Private | Git signing | `ssh-signing-key` | `Private` | `~/.ssh/private-signing.pub` |
-| Work | SSH login | `ssh-login-key` | `ID` | `~/.ssh/id-login.pub` |
-| Work | Git signing | `ssh-signing-key` | `ID` | `~/.ssh/id-signing.pub` |
+| Private | SSH login | `private-ssh-login-key` | `Private` / `Privat` | `~/.ssh/private-login.pub` |
+| Private | Git signing | `private-ssh-signing-key` | `Private` / `Privat` | `~/.ssh/private-signing.pub` |
+| Work | SSH login | `id-ssh-login-key` | `ID` | `~/.ssh/id-login.pub` |
+| Work | Git signing | `id-ssh-signing-key` | `ID` | `~/.ssh/id-signing.pub` |
 
 The user aspect generates `~/.config/1Password/ssh/agent.toml` to allowlist
-these four items. Host-specific SSH entries are encrypted in
+these four items by their unique names, without vault selectors because the
+default vault is called `Private` on rivendell and `Privat` on galadriel.
+Update it when renaming an item. Host-specific SSH entries are encrypted in
 `secrets/ssh_config` and deployed to `~/.ssh/config.d/hosts`. Edit them with
 `sops secrets/ssh_config`; use `IdentityFile ~/.ssh/<key>.pub` to select the
 agent key for a host. Register login public keys with the relevant server or
@@ -61,13 +63,13 @@ See the [Git aspect guide](apps/git.md) for how signing is wired.
 
 ### Rotate a key
 
-Create a replacement in the same 1Password vault, update its public key in
-`modules/users/mrolli/ssh.nix`, and update the 1Password item allowlist if its
-item name changes. For a login key, replace the public key on every server or
-hosting account and update the encrypted host entries. For a signing key,
-update the hosting provider's signing-key registration. Switch, verify login
-and signatures, then revoke the old public key. If a private key was exposed,
-revoke it immediately and rotate it at every place it was authorized.
+Create a replacement in the same 1Password vault, update its public key and
+item name in `modules/users/mrolli/ssh.nix`. For a login key, replace the
+public key on every server or hosting account and update the encrypted host
+entries. For a signing key, update the hosting provider's signing-key
+registration. Switch, verify login and signatures, then revoke the old public
+key. If a private key was exposed, revoke it immediately and rotate it at
+every place it was authorized.
 
 ## Where does a secret go?
 
@@ -109,6 +111,7 @@ sops holds a copy. Rotate in 1Password first, then update the sops copy.
 | --- | --- | --- |
 | recovery | `age1wckx8re2n0dfd7qtt4vfpcjtj4q67fcuv6363hqdnp9hn9xwvv6qw08rkw` | 1Password: "sops recovery age key" only |
 | rivendell | `age199p8luy9c3gzv8xxd3rmu0u0u4rz8gpz372jdf30xv6mn7mhkchswv4vg9` | rivendell: `~/.config/sops/age/keys.txt` |
+| galadriel | `age17mep62r06p6yc0umjwn5wfms6m3wlj2ns2f6ueqg3vwum0gpdp9s68z96t` | galadriel: `~/.config/sops/age/keys.txt` |
 
 The recovery key is a recipient of every rule, so it can decrypt every
 secrets file. It is never stored on a machine; use it only to recover or to

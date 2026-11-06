@@ -7,7 +7,7 @@ identities, and encrypted host configuration.
 
 Private keys remain in 1Password. The four public keys are declared here and
 linked into `~/.ssh`; login and signing keys are separate for the private and
-work identities. `agent.toml` explicitly selects the four 1Password items.
+work identities. `agent.toml` selects the four items by their unique titles.
 
 Host-specific names, users, addresses, and `IdentityFile` choices are kept in
 the encrypted `secrets/ssh_config`, delivered as
