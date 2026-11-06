@@ -39,7 +39,10 @@ default vault is called `Private` on rivendell and `Privat` on galadriel.
 Update it when renaming an item. Host-specific SSH entries are encrypted in
 `secrets/ssh_config` and deployed to `~/.ssh/config.d/hosts`. Edit them with
 `sops secrets/ssh_config`; use `IdentityFile ~/.ssh/<key>.pub` to select the
-agent key for a host. Register login public keys with the relevant server or
+agent key for a host, and set `IdentitiesOnly yes` in that host block to
+avoid offering other agent keys. Hosts without a configured key try the
+available agent keys in `agent.toml` order; servers may stop after too many
+failed attempts. Register login public keys with the relevant server or
 hosting account before selecting them.
 
 See the [OpenSSH aspect guide](apps/ssh.md) and [SSH identity guide](users/mrolli-ssh.md)

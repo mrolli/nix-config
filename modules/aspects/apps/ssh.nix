@@ -8,10 +8,12 @@
 # seen for most options, while `IdentityFile` accumulates; avoid a catch-all
 # identity file.
 #
-# `IdentitiesOnly` limits offered keys to those selected by matching
-# `IdentityFile` entries. Keepalive settings are shared defaults. Hostnames,
-# usernames, addresses, and per-host identities are configured separately in
-# the user's encrypted host file; see [SSH identities].
+# Unconfigured hosts may try all agent keys. Hosts with an explicit
+# `IdentityFile` also set `IdentitiesOnly yes`, limiting which key is offered;
+# the catch-all must not define an `IdentityFile` because it accumulates.
+# Keepalive settings are shared defaults. Hostnames, usernames, addresses, and
+# per-host identities are configured separately in the user's encrypted host
+# file; see [SSH identities].
 # See the [Home Manager SSH options] for Nix settings and the
 # [OpenSSH client configuration] reference for matching and precedence rules.
 #
@@ -28,9 +30,9 @@
       enable = true;
       enableDefaultConfig = false;
       includes = [ "config.d/*" ];
-      # Rendered last: first value wins in ssh_config, so host entries override it.
+      # Explicitly keyed hosts use IdentitiesOnly yes; other hosts try the agent.
       settings."*" = {
-        IdentitiesOnly = true;
+        IdentitiesOnly = false;
         ServerAliveInterval = 180;
         ServerAliveCountMax = 2;
       };

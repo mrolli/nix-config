@@ -13,7 +13,8 @@ Host-specific names, users, addresses, and `IdentityFile` choices are kept in
 the encrypted `secrets/ssh_config`, delivered as
 `~/.ssh/config.d/hosts`. Edit it with `sops secrets/ssh_config`. Add a public
 key to the relevant server or hosting account before selecting it in a host
-entry. Avoid a default `IdentityFile`: matching SSH host blocks accumulate
+entry. Keyed hosts set `IdentitiesOnly yes`; unconfigured hosts try all agent
+keys. Avoid a default `IdentityFile`: matching SSH host blocks accumulate
 identity files.
 
 Git defaults to the private signing key. Run `git-use-unibe-identity` inside

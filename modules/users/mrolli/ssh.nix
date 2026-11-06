@@ -10,7 +10,8 @@
 # the encrypted `secrets/ssh_config`, delivered as
 # `~/.ssh/config.d/hosts`. Edit it with `sops secrets/ssh_config`. Add a public
 # key to the relevant server or hosting account before selecting it in a host
-# entry. Avoid a default `IdentityFile`: matching SSH host blocks accumulate
+# entry. Keyed hosts set `IdentitiesOnly yes`; unconfigured hosts try all agent
+# keys. Avoid a default `IdentityFile`: matching SSH host blocks accumulate
 # identity files.
 #
 # Git defaults to the private signing key. Run `git-use-unibe-identity` inside
@@ -64,15 +65,19 @@ in
         item = "id-ssh-signing-key"
       '';
 
-      # Identity defaults. IdentityFile accumulates over all matching blocks, so
-      # there is no catch-all: other hosts set IdentityFile in the host entries.
+      # IdentityFile accumulates over matching blocks, so there is no catch-all.
+      # Restrict keyed hosts; unconfigured hosts try the 1Password agent.
       programs.ssh.settings = {
         "github.com" = {
           User = "git";
           IdentityFile = "~/.ssh/private-login.pub";
+          IdentitiesOnly = true;
         };
         "github.unibe.ch".User = "git";
-        "*.unibe.ch".IdentityFile = "~/.ssh/id-login.pub";
+        "*.unibe.ch" = {
+          IdentityFile = "~/.ssh/id-login.pub";
+          IdentitiesOnly = true;
+        };
       };
 
       # Git commit signing: private identity by default; git-use-unibe-identity
