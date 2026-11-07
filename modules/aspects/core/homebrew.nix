@@ -10,9 +10,8 @@
         ];
         brews = [ ];
         casks = [
-          "ghostty"
+          "appcleaner"
           "iina"
-          "windows-app"
         ];
       };
 

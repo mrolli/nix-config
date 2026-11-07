@@ -23,6 +23,7 @@
           ];
           casks = [
             "raycast"
+            "windows-app"
           ];
         };
       };
