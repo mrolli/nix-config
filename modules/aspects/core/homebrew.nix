@@ -8,9 +8,7 @@
         enableZshIntegration = true;
         taps = [
         ];
-        brews = [
-          "id-unibe-ch/tap/bildschirmUniversum"
-        ];
+        brews = [ ];
         casks = [
           "ghostty"
           "iina"

@@ -7,7 +7,6 @@
 
       den.aspects.base
       den.aspects.darwin-base
-      den.aspects.azure-cli
       den.aspects.homebrew
     ];
 
@@ -17,6 +16,7 @@
         homebrew = {
           # Remove packages not managed here
           onActivation.cleanup = "uninstall";
+          brews = [ ];
           casks = [
             "alfred"
           ];
