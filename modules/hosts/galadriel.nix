@@ -11,7 +11,12 @@
       den.aspects.homebrew
     ];
 
-    #homebrew.onActivation.cleanup = "uninstall";
+    darwin =
+      { ... }:
+      {
+        # Remove packages not managed here
+        homebrew.onActivation.cleanup = "uninstall";
+      };
 
   };
 }

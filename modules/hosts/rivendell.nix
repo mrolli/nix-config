@@ -9,11 +9,10 @@
       den.aspects.homebrew
     ];
 
-    #homebrew.onActivation.cleanup = "uninstall";
-
     darwin =
       { ... }:
       {
+        #homebrew.onActivation.cleanup = "uninstall";
         security.sudo.extraConfig = "%staff      ALL = (ALL) ALL";
       };
   };
