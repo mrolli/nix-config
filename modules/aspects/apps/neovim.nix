@@ -102,6 +102,7 @@
 
         treesitterParsers = with pkgs.vimPlugins.nvim-treesitter-parsers; [
           nix
+          php
         ];
       };
     };
