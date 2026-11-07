@@ -232,7 +232,7 @@
           orientation = "left";
 
           # Automatically hide the Dock and disable Dock animation
-          autohide = "true";
+          autohide = true;
           "autohide-time-modifier" = 0;
           "autohide-delay" = 0;
 
