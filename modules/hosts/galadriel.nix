@@ -14,8 +14,14 @@
     darwin =
       { ... }:
       {
-        # Remove packages not managed here
-        homebrew.onActivation.cleanup = "uninstall";
+        homebrew = {
+          enable = true;
+          # Remove packages not managed here
+          onActivation.cleanup = "uninstall";
+          casks = [
+            "alfred"
+          ];
+        };
       };
 
   };
