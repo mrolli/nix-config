@@ -56,8 +56,13 @@
         if
           builtins.isList domains && builtins.all (domain: builtins.isString domain && domain != "") domains
         then
+          # Sandboxed apps store preferences in TCC-protected containers; writes
+          # fail unless the terminal has Full Disk Access, so don't abort.
           lib.concatMapStringsSep "\n" (
-            domain: writeDefaults domain { NSRequiresAquaSystemAppearance = true; }
+            domain:
+            "${
+              writeDefaults domain { NSRequiresAquaSystemAppearance = true; }
+            } || warnEcho ${lib.escapeShellArg "Could not set light mode for ${domain}; grant the terminal Full Disk Access."}"
           ) domains
         else
           throw "lightApps expects a list of non-empty macOS preference domains";
