@@ -12,7 +12,15 @@
     darwin =
       { ... }:
       {
-        #homebrew.onActivation.cleanup = "uninstall";
+        homebrew = {
+          # Remove packages not managed here
+          # onActivation.cleanup = "uninstall";
+          casks = [
+            "raycast"
+          ];
+        };
+
+        # Let staff accounts do sudo
         security.sudo.extraConfig = "%staff      ALL = (ALL) ALL";
       };
   };

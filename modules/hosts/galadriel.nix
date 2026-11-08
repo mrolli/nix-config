@@ -15,7 +15,6 @@
       { ... }:
       {
         homebrew = {
-          enable = true;
           # Remove packages not managed here
           onActivation.cleanup = "uninstall";
           casks = [
