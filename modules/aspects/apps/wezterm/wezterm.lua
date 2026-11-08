@@ -36,7 +36,6 @@ table.insert(config.hyperlink_rules, {
   format = "mailto:$0",
 })
 
-config.show_update_window = false
 config.audible_bell = "Disabled"
 config.window_decorations = "RESIZE"
 config.tab_bar_at_bottom = true
