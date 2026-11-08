@@ -6,22 +6,22 @@ flake_dir="${NIX_SYSTEM_FLAKE_DIR:-$HOME/.nix-config}"
 
 usage() {
   cat <<'EOF'
-Usage: darwin-switch-summary --host <name>
+Usage: darwin-switch-summary [--host <name>]
 
 Builds the Darwin system output, prints a summary of what changes compared to the
 currently running system, shows an applications version-change table, and asks
-whether to switch.
+whether to switch. Without --host, selects the Den configuration matching
+the current machine's hostname.
 EOF
 }
-
-if [ $# -ne 2 ]; then
-  usage
-  exit 1
-fi
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
   --host)
+    if [[ $# -lt 2 || -z "$2" ]]; then
+      usage >&2
+      exit 1
+    fi
     host="$2"
     shift 2
     ;;
@@ -65,6 +65,17 @@ nix_path_info_json() {
 }
 
 cd "$flake_dir"
+if [[ -z "$host" ]]; then
+  machine_name="$(hostname -s)"
+  hostnames="$(nix eval --impure --json --expr \
+    'let flake = builtins.getFlake (toString ./.); in builtins.mapAttrs (_: host: host.config.networking.hostName) flake.darwinConfigurations')"
+  if ! host="$(jq -er --arg name "$machine_name" \
+    '[to_entries[] | select(.value == $name) | .key] | if length == 1 then .[0] else empty end' \
+    <<<"$hostnames")"; then
+    echo "Expected exactly one Darwin configuration for hostname '$machine_name'; use --host <name>." >&2
+    exit 1
+  fi
+fi
 attr="darwinConfigurations.${host}.system"
 tmp_dir="$(mktemp -d)"
 cleanup() { rm -rf "$tmp_dir"; }

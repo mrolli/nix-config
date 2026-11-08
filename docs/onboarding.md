@@ -160,8 +160,11 @@ From now on, apply changes with the helper; it builds, shows a summary, and
 asks before switching:
 
 ```sh
-scripts/darwin-switch-summary.sh --host <host>
+scripts/darwin-switch-summary.sh
 ```
+
+The helper resolves the local hostname against the evaluated Darwin host
+configurations. Use `--host <host>` to override selection explicitly.
 
 [Homebrew]: <https://brew.sh>
 [Determinate Nix]: <https://docs.determinate.systems>

@@ -202,13 +202,13 @@ step-by-step [onboarding guide](docs/onboarding.md). In short, when
 `darwin-rebuild` is not yet installed, use:
 
 ```bash
-sudo nix run nix-darwin -- switch --flake .#HOSTNAME
+sudo nix run nix-darwin -- switch --flake .#<configuration>
 ```
 
 After bootstrap, use the helper:
 
 ```bash
-scripts/darwin-switch-summary.sh [--host HOSTNAME]
+scripts/darwin-switch-summary.sh [--host <configuration>]
 ```
 
 ## Updating flake inputs
@@ -227,12 +227,13 @@ itself activate them:
 git diff -- flake.lock
 nix flake show
 nix flake check
-darwin-rebuild build --flake .#id-mrolli
+darwin-rebuild build --flake .#rivendell
 darwin-rebuild build --flake .#galadriel
 ```
 
-Use `scripts/darwin-switch-summary.sh [--host HOSTNAME]` after reviewing the
-build and deciding to activate it.
+Use `scripts/darwin-switch-summary.sh` after reviewing the build and deciding
+to activate it. The helper selects the Darwin configuration for the current
+machine's hostname; `--host <configuration>` overrides it.
 
 ## Reverting to last known-good configuration
 
@@ -257,21 +258,6 @@ Nixpkgs, nix-darwin, and Home Manager 26.11 branches are published. For
 Darwin use `nixpkgs-26.11-darwin`; for NixOS use `nixos-26.11`. These are
 platform-oriented stable branches for binary-cache builds and track the same
 `release-26.11` series.
-
-Before changing refs, check for local work and confirm all Macs are Apple
-Silicon. Nixpkgs 26.05 is the final release supporting Intel (`x86_64-darwin`);
-26.11 drops that platform:
-
-```bash
-git status --short
-git diff
-nix eval --raw .#darwinConfigurations.id-mrolli.pkgs.stdenv.hostPlatform.system
-nix eval --raw .#darwinConfigurations.galadriel.pkgs.stdenv.hostPlatform.system
-```
-
-Both Darwin evaluations must report `aarch64-darwin` to use 26.11. If any
-host reports `x86_64-darwin`, keep it on 26.05 and plan its hardware or
-platform transition separately.
 
 Edit `flake.nix` to update the three related inputs while preserving the
 `follows` relationships:
@@ -309,7 +295,7 @@ Resolve evaluation, build, deprecation, and package issues before switching.
 Activate one Mac at a time, verify it, then proceed to the next:
 
 ```bash
-scripts/darwin-switch-summary.sh --host <darwin-host>
+scripts/darwin-switch-summary.sh
 ```
 
 If the flake later includes NixOS hosts, decide how Den selects platform
