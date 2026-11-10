@@ -35,6 +35,7 @@
       den.aspects.wezterm
       den.aspects.yt-dlp
       den.aspects.zsh
+      den.aspects.zoxide
     ];
   };
 }
