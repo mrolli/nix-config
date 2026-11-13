@@ -6,11 +6,27 @@
 # the user account (name/home/isNormalUser on NixOS, name/home on nix-darwin,
 # plus the home-manager username/homeDirectory) and set the network hostname
 # from the roster's `hostName` (which defaults to the host name).
-{ den, ... }: {
+{ den, lib, ... }: {
   den.default = {
     includes = [
       den.batteries.define-user
       den.batteries.hostname
+
+      # Record the den host name (flake attribute) in the Darwin system
+      # closure (/run/current-system/darwin-host), so
+      # scripts/darwin-switch-summary.sh can find its configuration without
+      # evaluating the flake. Needed since hostName may differ from it.
+      (
+        { host, ... }:
+        {
+          name = "darwin-host-name";
+        }
+        // lib.optionalAttrs ((host.class or null) == "darwin") {
+          darwin.system.systemBuilderCommands = ''
+            echo -n ${lib.escapeShellArg host.name} > $out/darwin-host
+          '';
+        }
+      )
     ];
 
     # NixOS hosts: stateVersion + home-manager wiring (previously duplicated

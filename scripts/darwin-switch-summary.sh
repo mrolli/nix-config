@@ -10,8 +10,8 @@ Usage: darwin-switch-summary [--host <name>]
 
 Builds the Darwin system output, prints a summary of what changes compared to the
 currently running system, shows an applications version-change table, and asks
-whether to switch. Without --host, selects the Den configuration matching
-the current machine's hostname.
+whether to switch. Without --host, selects the Den configuration named in
+/run/current-system/darwin-host (written by the configuration itself).
 EOF
 }
 
@@ -66,13 +66,12 @@ nix_path_info_json() {
 
 cd "$flake_dir"
 if [[ -z "$host" ]]; then
-  machine_name="$(hostname -s)"
-  hostnames="$(nix eval --impure --json --expr \
-    'let flake = builtins.getFlake (toString ./.); in builtins.mapAttrs (_: host: host.config.networking.hostName) flake.darwinConfigurations')"
-  if ! host="$(jq -er --arg name "$machine_name" \
-    '[to_entries[] | select(.value == $name) | .key] | if length == 1 then .[0] else empty end' \
-    <<<"$hostnames")"; then
-    echo "Expected exactly one Darwin configuration for hostname '$machine_name'; use --host <name>." >&2
+  # Written by den-defaults.nix; avoids evaluating (and copying) the flake.
+  if [[ -r /run/current-system/darwin-host ]]; then
+    host="$(</run/current-system/darwin-host)"
+  fi
+  if [[ -z "$host" ]]; then
+    echo "Could not read /run/current-system/darwin-host; use --host <name>." >&2
     exit 1
   fi
 fi
