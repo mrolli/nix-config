@@ -41,8 +41,6 @@
         nixos-best-practices = "${inputs.skill-nixos-best-practices}/skills/nixos-best-practices";
         nixomatic = "${inputs.skill-nixomatic}/nixomatic";
       };
-
-      thisCfg = config.programs.github-copilot-cli;
     in
     {
       programs.claude-code = {
@@ -51,6 +49,17 @@
         package = (inputs.self.lib.unstablePkgs pkgs.stdenv.hostPlatform.system).claude-code;
         configDir = "${config.xdg.configHome}/claude";
 
+        settings = {
+          theme = "dark-ansi";
+          timeFormat = "24-hour";
+          pluginConfigs = {
+            "cc-plugin-agents-md@builtin" = {
+              "options" = {
+                "instructionFiles" = "claude-md-or-agents-md";
+              };
+            };
+          };
+        };
         context = ./copilot/instructions.md;
         agentsDir = ./copilot/agents;
         skills = externalSkills // localSkills;
