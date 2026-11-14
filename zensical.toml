@@ -18,6 +18,7 @@ extra_css = ["stylesheets/extra.css"]
 nav = [
   { "Home" = "index.md" },
   { "Onboarding" = "onboarding.md" },
+  { "User onboarding" = "user-onboarding.md" },
   { "Secrets management" = "secrets-management.md" },
   { "Applications" = [
     { "1Password" = "apps/onepassword.md" },

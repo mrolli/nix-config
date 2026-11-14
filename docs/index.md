@@ -13,6 +13,8 @@ This repo is the successor of my [dotfiles] and the [macos-deplaybook].
 ## Documentation
 
 - [Onboarding](onboarding.md) — install or restore a configured Mac.
+- [User onboarding](user-onboarding.md) — add a user, compose their aspects,
+  and override shared aspect settings.
 - [Secrets management](secrets-management.md) — choose, provision, and rotate
   secrets stored in sops or 1Password.
 - Aspect guides explain behavior that is not obvious from package installation

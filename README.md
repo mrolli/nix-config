@@ -136,6 +136,8 @@ only need user preferences and extra batteries:
 }
 ```
 
+To add a user to a host, see the [user onboarding guide](docs/user-onboarding.md).
+
 Determinate Nix owns the Nix daemon and daemon settings. Keep `nix.enable =
 false` in the Darwin base aspect and configure additions through
 `determinateNix.customSettings`.
@@ -343,3 +345,5 @@ Manager merges both definitions into that user's `starship.toml`:
   `programs.starship.settings = lib.mkForce { ... };`.
 - To opt out entirely, do not include the aspect for that user, or do not
   include `den.batteries.host-aspects` when the aspect comes from a host.
+- The [user onboarding guide](docs/user-onboarding.md#5-override-an-aspects-settings)
+  shows the same pattern for Git.
