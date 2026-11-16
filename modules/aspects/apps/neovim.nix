@@ -30,6 +30,11 @@
     {
       imports = [ inputs.lazyvim.homeManagerModules.default ];
 
+      # Devsense PHP Tools premium license, decrypted at activation to
+      # ~/.config/sops-nix/secrets/devsense_php_tools/license_code and read at
+      # runtime by lazyvim/plugins/lsp.lua; never enters the Nix store.
+      sops.secrets."devsense_php_tools/license_code" = { };
+
       # lazyvim-nix copies spell/ into the store, making the word lists
       # read-only. Link the .add files out of the store instead.
       xdg.configFile =
