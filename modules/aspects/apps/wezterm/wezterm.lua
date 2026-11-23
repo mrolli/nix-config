@@ -21,6 +21,9 @@ if wezterm.config_builder then
   config = wezterm.config_builder()
 end
 
+-- Install resurrect plugin
+local resurrect = wezterm.plugin.require("https://github.com/YedPool/resurrect.wezterm")
+
 -- Make username/project paths clickable. this implies paths like the following are for github.
 -- ( "nvim-treesitter/nvim-treesitter" | wbthomason/packer.nvim | wez/wezterm | "wez/wezterm.git" )
 -- as long as a full url hyperlink regex exists above this it should not match a full url to
@@ -103,6 +106,11 @@ wezterm.on("user-var-changed", function(window, pane, name, value)
   end
   window:set_config_overrides(overrides)
 end)
+
+-- Setup resurrect
+resurrect.setup(config, {
+  status_bar = false,
+})
 
 -- and finally, return the configuration to wezterm
 return config
