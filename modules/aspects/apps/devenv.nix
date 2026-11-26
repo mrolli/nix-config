@@ -3,19 +3,16 @@
 # https://devenv.sh
 { inputs, ... }:
 let
-  systemModule =
-    { pkgs, ... }:
-    {
-      # devenv moves quickly; take it from nixpkgs-unstable rather than the
-      # pinned `nixpkgs` release used for the rest of the system.
-      environment.systemPackages = [
-        (inputs.self.lib.unstablePkgs pkgs.stdenv.hostPlatform.system).devenv
-      ];
-    };
-
   homeModule =
     { pkgs, ... }:
     {
+      # devenv moves quickly; take it from nixpkgs-unstable rather than the
+      # pinned `nixpkgs` release used for the rest of the system. Installed
+      # via Home Manager so this stays a user-only aspect (den #694).
+      home.packages = [
+        (inputs.self.lib.unstablePkgs pkgs.stdenv.hostPlatform.system).devenv
+      ];
+
       # devenv's personal (non-project) settings, read from
       # $XDG_CONFIG_HOME/devenv/config.yaml. A project's own devenv.yaml /
       # devenv.local.yaml still takes precedence over prompt_prefix here.
@@ -51,8 +48,6 @@ let
 in
 {
   den.aspects.devenv = {
-    nixos = systemModule;
-    darwin = systemModule;
     homeManager = homeModule;
   };
 }
