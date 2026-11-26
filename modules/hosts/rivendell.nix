@@ -6,7 +6,9 @@
       den.aspects.darwin-base
       den.aspects.azure-cli
       den.aspects.devenv
+      den.aspects.ghostty
       den.aspects.homebrew
+      den.aspects.onepassword
     ];
 
     darwin =

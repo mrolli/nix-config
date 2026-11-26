@@ -7,6 +7,10 @@
 # plus the home-manager username/homeDirectory) and set the network hostname
 # from the roster's `hostName` (which defaults to the host name).
 { den, lib, ... }: {
+  # den #694: user aspects no longer write to their host; host-class content
+  # (casks, system packages) is included on the hosts themselves.
+  den.migrations.user-host-content.acknowledged = true;
+
   den.default = {
     includes = [
       den.batteries.define-user

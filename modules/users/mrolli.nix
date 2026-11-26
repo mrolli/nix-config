@@ -15,19 +15,16 @@
       den.aspects.bat
       den.aspects.cachix
       den.aspects.claude-code
-      den.aspects.devenv
       den.aspects.direnv
       den.aspects.editorconfig
       den.aspects.environment
       den.aspects.fzf
-      den.aspects.ghostty
       den.aspects.git
       den.aspects.github-cli
       den.aspects.github-copilot-cli
       den.aspects.glow
       den.aspects.mpv
       den.aspects.neovim
-      den.aspects.onepassword
       den.aspects.personal-scripts
       den.aspects.secrets
       den.aspects.ssh

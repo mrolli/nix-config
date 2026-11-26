@@ -7,7 +7,10 @@
 
       den.aspects.base
       den.aspects.darwin-base
+      den.aspects.devenv
+      den.aspects.ghostty
       den.aspects.homebrew
+      den.aspects.onepassword
     ];
 
     darwin =

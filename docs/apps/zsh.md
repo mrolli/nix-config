@@ -5,8 +5,9 @@
 Install and configure zsh using [Home Manager]
 [Home Manager]: <https://nix-community.github.io/home-manager/options/home-manager/programs/zsh.html>
 
-The aspect configures Home Manager on every supported platform and enables
-zsh at the system level for NixOS and Darwin. User configuration lives under
+The aspect configures Home Manager on every supported platform. The
+system-level `programs.zsh.enable` (NixOS and Darwin) comes from
+`den.batteries.user-shell "zsh"` on the user. User configuration lives under
 XDG config; history and completion caches live under XDG data/cache paths.
 
 ## Usage
