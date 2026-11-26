@@ -48,12 +48,14 @@ fi
 
 # Create playlist if necessary. Flat extraction only lists entries and
 # skips per-video format resolution, which is slow and fragile.
+# Thumbnail URLs are built from the video id: the flat-playlist ones carry
+# `sqp` params and are served as WebP, which some terminal viewers can't decode.
 if [ ! -s "$playlist_file" ]; then
   echo -n "Creating playlist file... "
   tmp_file=$playlist_file.tmp
   if yt-dlp --flat-playlist --no-warnings \
     --print '%(title)s' \
-    --print '%(thumbnails.-1.url)s' \
+    --print 'https://i.ytimg.com/vi/%(id)s/maxresdefault.jpg' \
     --print '%(url)s' \
     "$playlist_url" >"$tmp_file" && [ -s "$tmp_file" ]; then
     mv "$tmp_file" "$playlist_file"
@@ -76,10 +78,14 @@ selection=$(awk '
   fzf --delimiter='\t' \
     --with-nth=1 \
     --preview="
-        if command -v viu >/dev/null 2>&1; then
-          curl -sL {2} -o '$tmpimg' && viu -h 20 '$tmpimg'
+        if command -v chafa >/dev/null 2>&1; then
+          img={2}
+          # Not every video has a maxres thumbnail; fall back to hqdefault.
+          { curl -sfL \"\$img\" -o '$tmpimg' ||
+            curl -sfL \"\$(echo \"\$img\" | sed 's/maxresdefault/hqdefault/')\" -o '$tmpimg'; } &&
+            chafa --size=\"\${FZF_PREVIEW_COLUMNS}x\${FZF_PREVIEW_LINES}\" '$tmpimg'
         else
-          echo 'viu not found, please install viu to see image preview.'
+          echo 'chafa not found, please install chafa to see image preview.'
         fi
       " \
     --preview-window up:border-none)

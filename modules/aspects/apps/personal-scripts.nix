@@ -83,7 +83,7 @@
             openssl
             pandoc
             pdfTex
-            viu
+            chafa
           ]
           ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
             pkgs.util-linux
